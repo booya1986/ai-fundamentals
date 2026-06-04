@@ -1,0 +1,17 @@
+/* aurora.css — "Aurora-minimal" visual layer.
+   Subtle, fixed, soft aurora gradients behind everything + a faint warm crown.
+   Kept deliberately light so the clean prototype layout stays the star. */
+body {
+  background-color: var(--bg);
+  background-image:
+    radial-gradient(38% 30% at 14% 4%,  oklch(0.93 0.05 330 / 0.55), transparent 70%),
+    radial-gradient(34% 26% at 88% 8%,  oklch(0.92 0.05 285 / 0.45), transparent 70%),
+    radial-gradient(40% 34% at 82% 96%, oklch(0.93 0.05 175 / 0.40), transparent 72%),
+    radial-gradient(36% 30% at 8% 92%,  oklch(0.93 0.05 250 / 0.40), transparent 72%),
+    radial-gradient(120% 80% at 50% -10%, oklch(0.965 0.012 30) 0%, var(--bg) 55%);
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+}
+@media (prefers-reduced-motion: no-preference) {
+  body { transition: background-color .4s ease; }
+}

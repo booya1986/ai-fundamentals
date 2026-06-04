@@ -1,0 +1,108 @@
+/* tokens.css — design tokens + global base, ported from the Claude Design prototype.
+   Only change vs prototype: --font-head/--font-body use Noto Sans Hebrew. */
+:root {
+  /* Light base */
+  --bg:        oklch(0.987 0.004 285);
+  --bg-2:      oklch(0.958 0.006 285);
+  --surface:   oklch(1 0 0);
+  --surface-2: oklch(0.975 0.005 285);
+  --ink:       oklch(0.24 0.012 285);
+  --ink-soft:  oklch(0.42 0.012 285);
+  --muted:     oklch(0.56 0.012 285);
+  --line:      oklch(0.905 0.006 285);
+  --line-soft: oklch(0.945 0.005 285);
+
+  /* Single accent — vivid system red */
+  --accent:      oklch(0.6 0.22 25);
+  --accent-deep: oklch(0.52 0.21 25);
+  --accent-soft: oklch(0.95 0.04 25);
+  --accent-ink:  oklch(0.5 0.2 25);
+
+  /* Apple activity-ring palette (kept for accents) */
+  --move-1: #FF2D55; --move-2: #FF6A3D;
+  --ex-1:   #2BE07A; --ex-2:   #B6FF36;
+  --stand-1:#1AD0FF; --stand-2:#14E6C8;
+
+  /* Semantic */
+  --gold:    oklch(0.8 0.14 88);
+  --gold-deep: oklch(0.66 0.14 72);
+  --success: oklch(0.58 0.15 152);
+  --success-soft: oklch(0.95 0.05 152);
+  --danger:  oklch(0.57 0.19 25);
+  --danger-soft: oklch(0.96 0.04 25);
+
+  --r-sm: 12px;
+  --r:    18px;
+  --r-lg: 26px;
+  --r-xl: 34px;
+
+  --shadow-sm: 0 1px 2px oklch(0.4 0.03 285 / 0.06), 0 1px 3px oklch(0.4 0.03 285 / 0.05);
+  --shadow:    0 8px 26px oklch(0.4 0.03 285 / 0.10), 0 2px 6px oklch(0.4 0.03 285 / 0.06);
+  --shadow-lg: 0 24px 56px oklch(0.35 0.04 285 / 0.16), 0 6px 16px oklch(0.4 0.03 285 / 0.08);
+
+  --font-head: 'Noto Sans Hebrew', system-ui, sans-serif;
+  --font-body: 'Noto Sans Hebrew', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+
+  --maxw: 1080px;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 17px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+h1, h2, h3, h4 { font-family: var(--font-head); font-weight: 700; line-height: 1.15; margin: 0; letter-spacing: -0.01em; }
+button { font-family: inherit; cursor: pointer; }
+::selection { background: var(--accent-soft); }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 12px; height: 12px; }
+::-webkit-scrollbar-thumb { background: var(--line); border-radius: 10px; border: 3px solid var(--bg); }
+::-webkit-scrollbar-thumb:hover { background: var(--muted); }
+
+#root { min-height: 100vh; }
+
+/* keyframes shared */
+@keyframes pop-in { 0% { transform: scale(0.85); } 60% { transform: scale(1.04); } 100% { transform: scale(1); } }
+@keyframes fade-up { from { transform: translateY(14px); opacity: 0.001; } to { transform: translateY(0); opacity: 1; } }
+@keyframes fade-in { from { opacity: 0.001; } to { opacity: 1; } }
+@keyframes float-y { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-7px); } }
+@keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+@keyframes ring-fill { from { stroke-dashoffset: var(--circ); } }
+@keyframes confetti-fall { 0% { transform: translateY(-20vh) rotate(0); opacity: 1; } 100% { transform: translateY(105vh) rotate(720deg); opacity: 0.9; } }
+@keyframes badge-shine { 0% { transform: translateX(-120%) rotate(20deg); } 100% { transform: translateX(220%) rotate(20deg); } }
+@keyframes wiggle { 0%,100% { transform: rotate(0); } 25% { transform: rotate(-5deg); } 75% { transform: rotate(5deg); } }
+@keyframes bob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+@keyframes blink { 0%,92%,100% { transform: scaleY(1); } 96% { transform: scaleY(0.1); } }
+/* unlock animation */
+@keyframes unlock-pop { 0% { transform: scale(0.6); opacity: 0.001; } 55% { transform: scale(1.08); opacity: 1; } 100% { transform: scale(1); opacity: 1; } }
+@keyframes lock-burst { 0% { transform: scale(1) rotate(0); } 30% { transform: scale(1.25) rotate(-8deg); } 100% { transform: scale(0) rotate(28deg); opacity: 0; } }
+@keyframes ring-ping { 0% { transform: scale(0.7); opacity: 0.55; } 100% { transform: scale(2.2); opacity: 0; } }
+
+.duo-puck {
+  transition: transform .09s ease, box-shadow .09s ease, filter .15s ease;
+  box-shadow: 0 7px 0 var(--puck-edge);
+}
+.duo-puck:hover { filter: brightness(1.06); }
+.duo-puck:active { transform: translateY(5px) !important; box-shadow: 0 2px 0 var(--puck-edge); }
+.duo-puck.locked:active { transform: none !important; box-shadow: 0 7px 0 var(--puck-edge); }
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; }
+}
+
+.stripe-ph {
+  background-color: var(--bg-2);
+  background-image: repeating-linear-gradient(135deg, oklch(0.4 0.02 285 / 0.045) 0 12px, transparent 12px 24px);
+  color: var(--muted);
+  font-family: var(--font-mono);
+  display: flex; align-items: center; justify-content: center;
+  text-align: center;
+}
