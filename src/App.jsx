@@ -130,34 +130,50 @@ function ModuleCompleteOverlay({ celebrate, onClose }) {
   )
 }
 
-/* ---------- Top bar ---------- */
+/* ---------- responsive helper ---------- */
+function useIsMobile(bp = 560) {
+  const [m, setM] = useState(typeof window !== "undefined" && window.matchMedia ? window.matchMedia(`(max-width:${bp}px)`).matches : false)
+  useEffect(() => {
+    if (typeof window === "undefined" || !window.matchMedia) return
+    const mq = window.matchMedia(`(max-width:${bp}px)`)
+    const on = () => setM(mq.matches)
+    on()
+    mq.addEventListener("change", on)
+    return () => mq.removeEventListener("change", on)
+  }, [bp])
+  return m
+}
+
+/* ---------- Top bar (responsive) ---------- */
 function TopBar({ progress, onAchievements, onHome }) {
   const li = levelInfo(progress.xp)
+  const mobile = useIsMobile()
   return (
     <div style={{ position: "sticky", top: 0, zIndex: 100, background: "color-mix(in oklch, var(--bg), transparent 12%)",
       backdropFilter: "blur(12px)", borderBottom: "1px solid var(--line)" }}>
-      <div style={{ maxWidth: "var(--maxw)", margin: "0 auto", padding: "12px 22px", display: "flex", alignItems: "center", gap: 12 }}>
-        <button onClick={onHome} style={{ display: "flex", alignItems: "center", gap: 11, background: "none", border: "none", cursor: "pointer", padding: 0 }}>
-          <div style={{ width: 38, height: 38, borderRadius: 11, background: "linear-gradient(140deg, var(--accent), var(--accent-deep))", display: "grid", placeItems: "center", color: "#fff", boxShadow: "0 6px 14px color-mix(in oklch, var(--accent), transparent 65%)" }}>
-            <Icon name="spark" size={21} fill />
-          </div>
-          <div style={{ fontFamily: "var(--font-head)", fontWeight: 800, fontSize: 16 }}>יסודות AI</div>
+      <div style={{ maxWidth: "var(--maxw)", margin: "0 auto", padding: mobile ? "9px 12px" : "12px 22px", display: "flex", alignItems: "center", gap: mobile ? 7 : 12 }}>
+        <button onClick={onHome} title="למפת הקורס" style={{ background: "none", border: "none", cursor: "pointer", padding: 0, fontFamily: "var(--font-head)", fontWeight: 800, fontSize: mobile ? 15 : 18, color: "var(--ink)", flex: "none" }}>
+          מפת הקורס
         </button>
         <div style={{ flex: 1 }} />
-        <Pill icon="bolt" tone="var(--accent-ink)" soft="var(--accent-soft)">{progress.xp} XP</Pill>
-        {/* level — shows the user's current level + progress to next */}
+        {/* XP */}
+        <div title={`${progress.xp} XP`} style={{ display: "inline-flex", alignItems: "center", gap: 5, background: "var(--accent-soft)", color: "var(--accent-ink)",
+          padding: mobile ? "6px 10px" : "7px 13px", borderRadius: 999, fontFamily: "var(--font-head)", fontWeight: 700, fontSize: mobile ? 13.5 : 15.5, flex: "none" }}>
+          <Icon name="bolt" size={mobile ? 15 : 17} fill /> {progress.xp}{!mobile && " XP"}
+        </div>
+        {/* level */}
         <div title={`רמה ${li.level} · ${li.pct}% לרמה הבאה`} style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "var(--surface)",
-          border: "1px solid var(--line)", borderRadius: 999, padding: "4px 13px 4px 5px", boxShadow: "var(--shadow-sm)" }}>
-          <ProgressRing value={li.pct} size={32} stroke={4}>
+          border: "1px solid var(--line)", borderRadius: 999, padding: mobile ? "3px" : "4px 13px 4px 5px", boxShadow: "var(--shadow-sm)", flex: "none" }}>
+          <ProgressRing value={li.pct} size={mobile ? 30 : 32} stroke={4}>
             <span style={{ fontFamily: "var(--font-head)", fontWeight: 800, fontSize: 12.5, color: "var(--accent-ink)" }}>{li.level}</span>
           </ProgressRing>
-          <span style={{ fontFamily: "var(--font-head)", fontWeight: 700, fontSize: 14.5, color: "var(--ink-soft)" }}>רמה {li.level}</span>
+          {!mobile && <span style={{ fontFamily: "var(--font-head)", fontWeight: 700, fontSize: 14.5, color: "var(--ink-soft)" }}>רמה {li.level}</span>}
         </div>
-        {/* explicit achievements entry */}
+        {/* achievements */}
         <button onClick={onAchievements} title="ההישגים שלי" style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "var(--accent-soft)",
-          color: "var(--accent-ink)", border: "1px solid transparent", borderRadius: 999, padding: "8px 15px", cursor: "pointer",
-          fontFamily: "var(--font-head)", fontWeight: 700, fontSize: 14.5, boxShadow: "var(--shadow-sm)" }}>
-          <Icon name="trophy" size={17} fill /> ההישגים שלי
+          color: "var(--accent-ink)", border: "1px solid transparent", borderRadius: 999, padding: mobile ? "8px" : "8px 15px", cursor: "pointer",
+          fontFamily: "var(--font-head)", fontWeight: 700, fontSize: 14.5, boxShadow: "var(--shadow-sm)", flex: "none" }}>
+          <Icon name="trophy" size={mobile ? 18 : 17} fill />{!mobile ? " ההישגים שלי" : ""}
         </button>
       </div>
     </div>
@@ -180,7 +196,7 @@ function Hero({ progress, onContinue, layout, setLayout }) {
         <div style={{ display: "flex", flexWrap: "wrap", gap: 30, padding: "34px", alignItems: "center",
           background: "linear-gradient(125deg, oklch(0.985 0.006 32), oklch(0.95 0.03 32))" }}>
           <div style={{ flex: "1 1 320px" }}>
-            <div style={{ display: "inline-flex", alignItems: "center", gap: 7, fontFamily: "var(--font-head)", fontWeight: 600, fontSize: 14.5, color: "var(--accent)", marginBottom: 8 }}><Icon name="sparkles" size={16} /> שלום, נעים לראות אותך</div>
+            <div style={{ fontFamily: "var(--font-head)", fontWeight: 600, fontSize: 14.5, color: "var(--accent)", marginBottom: 8 }}>שלום, נעים לראות אותך</div>
             <h1 style={{ fontSize: 33, marginBottom: 10, lineHeight: 1.15, letterSpacing: "-0.02em", color: L.ink }}>{COURSE.title}</h1>
             <p style={{ fontSize: 16.5, color: L.soft, margin: "0 0 22px", maxWidth: 440 }}>{COURSE.subtitle}</p>
             {next && <Button variant="primary" size="lg" iconEnd="arrowback" onClick={() => onContinue(next.m.id, next.l.id)}>
