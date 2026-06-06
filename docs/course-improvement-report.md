@@ -473,7 +473,7 @@ After completing the capstone, offer a pre-filled Teams message or email that th
 
 | Module | Current format | Recommended change | Priority |
 |--------|---------------|-------------------|----------|
-| M0 diagnostic | Single-dimension quiz | Three-dimension 10-item diagnostic + adaptive routing | 🔴 High |
+| M0 diagnostic | Single-dimension quiz | Three-dimension 12-item diagnostic + adaptive routing — **implemented ✓ (routing phase 2)** | 🔴 High |
 | M1/l1 reading | Reading 4 min | Merge 3 sentences into WordPredictionSim intro; remove lesson | 🟡 Medium |
 | M1/lmap reading | Dense reading 6 min (4 heavy keypoints) | 2 animated explainer videos (3 min each) | 🔴 High |
 | M1 new interaction | — | "Spot the Problem" trust calibration cards (5 items) | 🔴 High |
