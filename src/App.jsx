@@ -193,6 +193,12 @@ function App() {
     const { mod } = findLesson(current.mid, current.lid)
     const i = mod.lessons.findIndex((l) => l.id === current.lid)
     const nextLes = mod.lessons[i + 1]
+    if (progress.done.includes(key)) {
+      // Revision mode — lesson already done, just navigate forward without awarding XP
+      if (nextLes) openLesson(current.mid, nextLes.id)
+      else setScreen("map")
+      return
+    }
     const { np, newlyUnlocked, gained } = applyDone(progress, [key], 10)
     setProgress(np)
     const moduleDone = mod.lessons.every((l) => np.done.includes(`${mod.id}/${l.id}`))
@@ -205,6 +211,14 @@ function App() {
   const finishQuiz = (res) => {
     const mid = current ? current.mid : "m1"
     const keys = current ? [`${current.mid}/${current.lid}`] : []
+    if (keys.length > 0 && progress.done.includes(keys[0])) {
+      // Revision mode — quiz already done, show results without updating progress
+      setNewBadges([])
+      setResult({ ...res, courseComplete: isCourseDone(progress) })
+      window.__pendingCelebrate = null
+      setScreen("results")
+      return
+    }
     const { np, newlyUnlocked, gained } = applyDone(progress, keys, res.xp)
     np.scores = { ...(progress.scores || {}), [mid]: { c: res.correct, t: res.total } }
     const allGained = [...gained]

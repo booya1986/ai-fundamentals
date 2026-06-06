@@ -112,7 +112,7 @@ function ListMap({ modules, progress, onOpenLesson }) {
         const handleTap = () => {
           if (isLocked) return
           const firstIncomplete = mod.lessons.find((l) => !progress.done.includes(`${mod.id}/${l.id}`))
-          const target = firstIncomplete || mod.lessons[mod.lessons.length - 1]
+          const target = firstIncomplete || mod.lessons[0]
           onOpenLesson(mod.id, target.id)
         }
         return (
@@ -283,7 +283,7 @@ function JourneyMap({ modules, progress, onOpenLesson }) {
 /* ======= Main export ======= */
 export function CourseMap({ modules, progress, onOpenLesson }) {
   const [view, setView] = useState(() => {
-    try { return localStorage.getItem("cm-view") || "list" } catch { return "list" }
+    try { return localStorage.getItem("cm-view") || "board" } catch { return "board" }
   })
   const totalLessons = modules.reduce((a, m) => a + m.lessons.length, 0)
   const doneCount = progress.done.length
@@ -293,17 +293,41 @@ export function CourseMap({ modules, progress, onOpenLesson }) {
     try { localStorage.setItem("cm-view", v) } catch {}
   }
 
+  const coverPct = totalLessons > 0 ? Math.round((doneCount / totalLessons) * 100) : 0
+
   return (
     <div style={{ paddingBottom: 8, animation: "fade-up .3s ease" }}>
       <div style={{ height: 14 }} />
 
-      {/* Large title */}
+      {/* Status bar org label */}
       <div style={{ padding: "4px var(--side-pad, 16px) 10px" }}>
-        <div style={{ fontSize: 11, fontWeight: 600, color: "var(--accent)", letterSpacing: "0.04em", textTransform: "uppercase", marginBottom: 2 }}>
+        <div style={{ fontSize: 11, fontWeight: 600, color: "var(--accent)", letterSpacing: "0.04em", textTransform: "uppercase" }}>
           Bank Hapoalim Academy
         </div>
-        <div style={{ fontSize: 32, fontWeight: 700, color: "var(--ink)", letterSpacing: "-0.5px", lineHeight: 1.1 }}>
-          יסודות ה-AI
+      </div>
+
+      {/* Dark Cinematic Hero Card */}
+      <div style={{ margin: "0 var(--side-pad, 16px) 12px", borderRadius: "var(--r-xl)", overflow: "hidden", boxShadow: "0 6px 28px rgba(0,0,0,0.22)", position: "relative", height: 118 }}>
+        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(120deg,#0d1117 0%,#1a0a0a 60%,#2d0a00 100%)" }} />
+        <div style={{ position: "absolute", inset: 0, backgroundImage: "linear-gradient(rgba(255,59,48,.07) 1px,transparent 1px),linear-gradient(90deg,rgba(255,59,48,.07) 1px,transparent 1px)", backgroundSize: "20px 20px" }} />
+        <div style={{ position: "absolute", right: -40, top: -50, width: 220, height: 220, borderRadius: "50%", background: "radial-gradient(circle,rgba(255,59,48,.32) 0%,transparent 65%)", filter: "blur(28px)" }} />
+        <div style={{ position: "absolute", inset: 0, padding: "14px 18px", display: "flex", alignItems: "flex-end", justifyContent: "space-between" }}>
+          <div>
+            <div style={{ display: "inline-block", fontSize: 9, fontWeight: 700, color: "rgba(255,100,80,.9)", letterSpacing: ".07em", textTransform: "uppercase", background: "rgba(255,59,48,.15)", border: "1px solid rgba(255,59,48,.3)", borderRadius: 20, padding: "2px 8px", marginBottom: 7 }}>
+              AI Course · 2024
+            </div>
+            <div style={{ fontSize: 20, fontWeight: 800, color: "#fff", letterSpacing: "-.3px", lineHeight: 1.15 }}>
+              בינה מלאכותית<br />לעולם העבודה
+            </div>
+            <div style={{ fontSize: 11, color: "rgba(255,255,255,.4)", marginTop: 3 }}>{modules.length} מודולים · {totalLessons} שיעורים</div>
+          </div>
+          <div style={{ textAlign: "left", flexShrink: 0 }}>
+            <div style={{ fontSize: 28, fontWeight: 800, color: "var(--accent)", lineHeight: 1 }}>{coverPct}%</div>
+            <div style={{ fontSize: 9, color: "rgba(255,255,255,.4)", marginTop: 2 }}>הושלם</div>
+            <div style={{ marginTop: 5, width: 48, height: 3, background: "rgba(255,255,255,.1)", borderRadius: 3, overflow: "hidden" }}>
+              <div style={{ width: `${coverPct}%`, height: "100%", background: "var(--accent)", borderRadius: 3 }} />
+            </div>
+          </div>
         </div>
       </div>
 
@@ -312,7 +336,7 @@ export function CourseMap({ modules, progress, onOpenLesson }) {
       {/* View toggle */}
       <div style={{ padding: "14px var(--side-pad, 16px) 4px" }}>
         <div style={{ display: "flex", background: "var(--line)", borderRadius: 10, padding: 2, gap: 2 }}>
-          {[["list", "רשימה"], ["board", "לוח"], ["journey", "מסלול"]].map(([v, label]) => (
+          {[["board", "לוח"], ["list", "רשימה"], ["journey", "מסלול"]].map(([v, label]) => (
             <button key={v} onClick={() => changeView(v)} style={{
               flex: 1, padding: "7px 0", borderRadius: 8, border: "none", cursor: "pointer",
               background: view === v ? "var(--surface)" : "transparent",

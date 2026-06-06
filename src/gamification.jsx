@@ -103,19 +103,24 @@ function AchievementsView({ badges, progress, onBack }) {
   const locked = badges.filter((b) => !progress.badges.includes(b.id))
   const xpPerLevel = 300
   const level = Math.floor(progress.xp / xpPerLevel) + 1
-  const pct = Math.round(((progress.xp % xpPerLevel) / xpPerLevel) * 100)
 
   return (
     <div style={{ animation: "fade-up .35s ease", paddingBottom: 90 }}>
       <div style={{ height: 14 }} />
 
-      {/* Large title */}
-      <div style={{ padding: "4px var(--side-pad, 18px) 10px" }}>
-        <div style={{ fontSize: 32, fontWeight: 700, color: "var(--ink)", letterSpacing: "-0.5px", lineHeight: 1.1 }}>ההישגים שלי</div>
+      {/* Trophy Hero Header */}
+      <div style={{ margin: "0 var(--side-pad, 16px)", borderRadius: "var(--r-xl)", overflow: "hidden", boxShadow: "0 6px 28px rgba(0,0,0,0.2)" }}>
+        <div style={{ background: "linear-gradient(160deg,#1a0505 0%,#2d0a00 50%,#3d1500 100%)", padding: "18px 20px 22px", position: "relative" }}>
+          <div style={{ position: "absolute", top: -70, left: "50%", transform: "translateX(-50%)", width: 280, height: 280, borderRadius: "50%", background: "radial-gradient(circle,rgba(255,149,0,.28) 0%,transparent 65%)", filter: "blur(30px)", pointerEvents: "none" }} />
+          <button onClick={onBack} style={{ background: "none", border: "none", fontSize: 13, fontWeight: 600, color: "var(--accent)", cursor: "pointer", padding: 0, display: "block", marginBottom: 12, fontFamily: "var(--font-head)", position: "relative" }}>‹ קורס</button>
+          <div style={{ fontSize: 52, textAlign: "center", marginBottom: 6, filter: "drop-shadow(0 6px 16px rgba(255,149,0,.5))", position: "relative" }}>🏆</div>
+          <div style={{ fontSize: 22, fontWeight: 800, color: "#fff", textAlign: "center", letterSpacing: "-.3px", position: "relative" }}>ההישגים שלי</div>
+          <div style={{ fontSize: 11, color: "rgba(255,255,255,.45)", textAlign: "center", marginTop: 3, position: "relative" }}>{earned.length} באדג'ים הושגו מתוך {badges.length}</div>
+        </div>
       </div>
 
-      <div style={{ padding: "0 var(--side-pad, 16px)" }}>
-        {/* Stats pills */}
+      <div style={{ padding: "10px var(--side-pad, 16px) 0" }}>
+        {/* Stats row */}
         <div style={{ display: "flex", gap: 8, marginBottom: 14 }}>
           {[
             { value: progress.xp, label: "XP", color: "var(--accent)" },
@@ -128,17 +133,6 @@ function AchievementsView({ badges, progress, onBack }) {
               <div style={{ fontSize: 11, color: "var(--muted)", marginTop: 1 }}>{s.label}</div>
             </div>
           ))}
-        </div>
-
-        {/* Overall progress bar */}
-        <div style={{ background: "var(--surface)", borderRadius: "var(--r-lg)", padding: "14px 16px", boxShadow: "var(--shadow)", marginBottom: 16 }}>
-          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
-            <span style={{ fontSize: 13, fontWeight: 600, color: "var(--ink)" }}>התקדמות כללית</span>
-            <span style={{ fontSize: 13, color: "var(--muted)" }}>{pct}%</span>
-          </div>
-          <div style={{ background: "var(--line)", borderRadius: 5, height: 6, overflow: "hidden" }}>
-            <div style={{ background: "linear-gradient(to left,var(--accent),var(--warning))", width: `${pct}%`, height: "100%", borderRadius: 5 }} />
-          </div>
         </div>
 
         {/* Earned badges */}
