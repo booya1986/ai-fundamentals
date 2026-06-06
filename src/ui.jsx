@@ -6,7 +6,7 @@ import {
   X, BookOpen, Clock, LayoutGrid, Route, Map as MapIcon, Cpu, Database, Terminal,
   Scale, Briefcase, Lightbulb, Copy, ExternalLink, AlertTriangle,
 } from 'lucide-react'
-const { useState, useEffect, useRef } = React
+const { useState, useEffect, useRef, useCallback } = React
 
 /* ---------- Icons (one unified set — lucide-react) ---------- */
 const ICONS = {
@@ -106,11 +106,11 @@ function ProgressRing({ value, size = 56, stroke = 6, tone = "var(--accent)", fr
 function Card({ children, style, pad = 16, hover, onClick }) {
   return (
     <div onClick={onClick}
+      className={hover || onClick ? "card-hover" : undefined}
       style={{
         background: "var(--surface)", borderRadius: "var(--r-lg)",
         boxShadow: "var(--shadow)", padding: pad,
         cursor: onClick || hover ? "pointer" : undefined,
-        transition: hover ? "opacity .15s" : undefined,
         ...style,
       }}>
       {children}
@@ -233,6 +233,17 @@ function TabBar({ active, onNavigate }) {
     { id: "map",          label: "קורס",   emoji: "🏠" },
     { id: "achievements", label: "הישגים", emoji: "🏆" },
   ]
+  const [bouncingId, setBouncingId] = useState(null)
+  const prevActiveRef = useRef(active)
+  useEffect(() => {
+    if (prevActiveRef.current !== active) {
+      setBouncingId(active)
+      prevActiveRef.current = active
+      const t = setTimeout(() => setBouncingId(null), 400)
+      return () => clearTimeout(t)
+    }
+  }, [active])
+
   return (
     <div style={{
       position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 200,
@@ -250,7 +261,12 @@ function TabBar({ active, onNavigate }) {
             display: "flex", flexDirection: "column", alignItems: "center", gap: 3,
             padding: "4px 24px",
           }}>
-            <span style={{ fontSize: 22, filter: isActive ? "none" : "grayscale(1)", opacity: isActive ? 1 : 0.45 }}>
+            <span style={{
+              fontSize: 22, display: "inline-block",
+              filter: isActive ? "none" : "grayscale(1)",
+              opacity: isActive ? 1 : 0.45,
+              animation: t.id === bouncingId ? "tab-bounce .35s cubic-bezier(.2,.8,.4,1)" : "none",
+            }}>
               {t.emoji}
             </span>
             <span style={{

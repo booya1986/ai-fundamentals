@@ -1,7 +1,7 @@
 // coursemap.jsx — iOS list · board · journey views
 import React from 'react'
 import { Icon, Card, ProgressRing, ProgressBar } from './ui.jsx'
-const { useState } = React
+const { useState, useRef } = React
 
 const MODULE_GRADIENTS = {
   m0: "linear-gradient(135deg,#636366,#48484A)",
@@ -89,7 +89,7 @@ function LevelXPCard({ progress }) {
         <span style={{ fontSize: 13, color: "var(--muted)" }}>{xpInLevel} / {xpPerLevel} XP</span>
       </div>
       <div style={{ background: "var(--line)", borderRadius: 4, height: 5, overflow: "hidden" }}>
-        <div style={{ background: "var(--accent)", width: `${pct}%`, height: "100%", borderRadius: 4 }} />
+        <div style={{ background: "var(--accent)", width: `${pct}%`, height: "100%", borderRadius: 4, animation: "bar-grow .8s cubic-bezier(.2,.8,.4,1) both" }} />
       </div>
     </div>
   )
@@ -98,6 +98,15 @@ function LevelXPCard({ progress }) {
 /* ======= View: iOS List ======= */
 function ListMap({ modules, progress, onOpenLesson }) {
   const unlocked = unlockedSet(modules, progress)
+  const [shakingId, setShakingId] = useState(null)
+  const shakeTimerRef = useRef(null)
+
+  const shake = (id) => {
+    clearTimeout(shakeTimerRef.current)
+    setShakingId(id)
+    shakeTimerRef.current = setTimeout(() => setShakingId(null), 520)
+  }
+
   return (
     <div style={{ margin: "0 var(--side-pad, 16px)", background: "var(--surface)", borderRadius: "var(--r-lg)", overflow: "hidden", boxShadow: "var(--shadow)" }}>
       {modules.map((mod, i) => {
@@ -110,18 +119,21 @@ function ListMap({ modules, progress, onOpenLesson }) {
         const emoji = MODULE_EMOJIS[mod.id] || "📚"
         const isLast = i === modules.length - 1
         const handleTap = () => {
-          if (isLocked) return
+          if (isLocked) { shake(mod.id); return }
           const firstIncomplete = mod.lessons.find((l) => !progress.done.includes(`${mod.id}/${l.id}`))
           const target = firstIncomplete || mod.lessons[0]
           onOpenLesson(mod.id, target.id)
         }
         return (
-          <div key={mod.id} onClick={handleTap} style={{
-            padding: "13px 16px", display: "flex", alignItems: "center", gap: 12,
-            borderBottom: isLast ? "none" : "0.5px solid var(--line)",
-            cursor: isLocked ? "default" : "pointer",
-            opacity: isLocked ? 0.42 : 1, background: "var(--surface)",
-          }}>
+          <div key={mod.id} onClick={handleTap}
+            className={!isLocked ? "row-hover" : undefined}
+            style={{
+              padding: "13px 16px", display: "flex", alignItems: "center", gap: 12,
+              borderBottom: isLast ? "none" : "0.5px solid var(--line)",
+              cursor: isLocked ? "default" : "pointer",
+              opacity: isLocked ? 0.42 : 1, background: "var(--surface)",
+              animation: shakingId === mod.id ? "lock-shake .5s ease" : "none",
+            }}>
             <div style={{
               width: 40, height: 40, borderRadius: 10, flexShrink: 0,
               background: isLocked ? "var(--line)" : gradient,
@@ -137,7 +149,7 @@ function ListMap({ modules, progress, onOpenLesson }) {
               {state === "active" ? (
                 <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
                   <div style={{ flex: 1, background: "var(--line)", borderRadius: 3, height: 3, overflow: "hidden" }}>
-                    <div style={{ background: "var(--warning)", width: `${pct}%`, height: "100%", borderRadius: 3 }} />
+                    <div style={{ background: "var(--warning)", width: `${pct}%`, height: "100%", borderRadius: 3, animation: "bar-grow .8s cubic-bezier(.2,.8,.4,1) both" }} />
                   </div>
                   <span style={{ fontSize: 11, color: "var(--muted)", flexShrink: 0 }}>{pct}%</span>
                 </div>
@@ -147,9 +159,11 @@ function ListMap({ modules, progress, onOpenLesson }) {
                 </div>
               )}
             </div>
-            <div style={{ flexShrink: 0, fontSize: state === "done" ? 18 : 20, color: state === "done" ? "var(--success)" : "var(--line-strong)" }}>
-              {state === "done" ? "✓" : isLocked ? "" : "›"}
-            </div>
+            {state === "done" ? (
+              <span style={{ flexShrink: 0, fontSize: 18, color: "var(--success)", display: "inline-block", animation: "check-pop .55s cubic-bezier(.2,.8,.4,1) both" }}>✓</span>
+            ) : (
+              <span style={{ flexShrink: 0, fontSize: 20, color: "var(--line-strong)" }}>{isLocked ? "" : "›"}</span>
+            )}
           </div>
         )
       })}
@@ -167,7 +181,11 @@ function BoardMap({ modules, progress, onOpenLesson }) {
         const cta = state === "done" ? "חזרה למודול" : completed > 0 ? "המשך מודול" : "התחל מודול"
         const target = firstUndone || mod.lessons[0]
         return (
-          <Card key={mod.id} hover={!isLocked} pad={0} style={{ overflow: "hidden", opacity: isLocked ? 0.78 : 1, height: "100%" }}>
+          <Card key={mod.id} hover={!isLocked} pad={0} onClick={!isLocked ? () => onOpenLesson(mod.id, target.id) : undefined} style={{
+            overflow: "hidden", opacity: isLocked ? 0.78 : 1, height: "100%",
+            animation: "card-in .45s cubic-bezier(.2,.8,.4,1) both",
+            animationDelay: `${mi * 70}ms`,
+          }}>
             <div style={{ padding: 20, display: "flex", flexDirection: "column", height: "100%" }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 14 }}>
                 <GlyphTile modId={mod.id} state={state} size={54} />
@@ -333,23 +351,39 @@ export function CourseMap({ modules, progress, onOpenLesson }) {
 
       <LevelXPCard progress={progress} />
 
-      {/* View toggle */}
+      {/* View toggle — sliding pill */}
       <div style={{ padding: "14px var(--side-pad, 16px) 4px" }}>
-        <div style={{ display: "flex", background: "var(--line)", borderRadius: 10, padding: 2, gap: 2 }}>
-          {[["board", "לוח"], ["list", "רשימה"], ["journey", "מסלול"]].map(([v, label]) => (
-            <button key={v} onClick={() => changeView(v)} style={{
-              flex: 1, padding: "7px 0", borderRadius: 8, border: "none", cursor: "pointer",
-              background: view === v ? "var(--surface)" : "transparent",
-              fontWeight: view === v ? 600 : 400,
-              color: view === v ? "var(--ink)" : "var(--muted)",
-              fontSize: 13, fontFamily: "var(--font-head)",
-              transition: "background .15s, color .15s",
-              boxShadow: view === v ? "var(--shadow-sm)" : "none",
-            }}>
-              {label}
-            </button>
-          ))}
-        </div>
+        {(() => {
+          const TABS = [["board", "לוח"], ["list", "רשימה"], ["journey", "מסלול"]]
+          const segIdx = TABS.findIndex(([v]) => v === view)
+          return (
+            <div style={{ position: "relative", display: "flex", background: "var(--line)", borderRadius: 10, padding: 2, gap: 0 }}>
+              {/* sliding pill */}
+              <div style={{
+                position: "absolute", top: 2, right: 2,
+                width: `calc(${100 / TABS.length}% - 4px / ${TABS.length})`,
+                height: "calc(100% - 4px)",
+                background: "var(--surface)", borderRadius: 8, boxShadow: "var(--shadow-sm)",
+                transform: `translateX(calc(${segIdx} * (-100% - 1px)))`,
+                transition: "transform .25s cubic-bezier(.2,.8,.4,1)",
+                pointerEvents: "none",
+              }} />
+              {TABS.map(([v, label]) => (
+                <button key={v} onClick={() => changeView(v)} style={{
+                  flex: 1, padding: "7px 0", borderRadius: 8, border: "none", cursor: "pointer",
+                  background: "transparent",
+                  fontWeight: view === v ? 600 : 400,
+                  color: view === v ? "var(--ink)" : "var(--muted)",
+                  fontSize: 13, fontFamily: "var(--font-head)",
+                  position: "relative", zIndex: 1,
+                  transition: "color .2s",
+                }}>
+                  {label}
+                </button>
+              ))}
+            </div>
+          )
+        })()}
       </div>
 
       {/* Section label */}

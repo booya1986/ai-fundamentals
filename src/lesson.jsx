@@ -150,6 +150,8 @@ function QuizRunner({ quiz, onBack, onComplete }) {
   const [maxCombo, setMaxCombo] = useState(0)
   const [earnedXp, setEarnedXp] = useState(0)
   const [lastGain, setLastGain] = useState(0)
+  const [floatingXp, setFloatingXp] = useState(null)
+  const floatTimerRef = useRef(null)
   const q = quiz.questions[idx]
   const Comp = EXERCISE_COMPONENTS[q.type]
   const isLast = idx === quiz.questions.length - 1
@@ -165,6 +167,9 @@ function QuizRunner({ quiz, onBack, onComplete }) {
         const gain = quiz.xpPerCorrect + bonus
         setEarnedXp((x) => x + gain); setLastGain(gain)
         setMaxCombo((m) => Math.max(m, nc))
+        clearTimeout(floatTimerRef.current)
+        setFloatingXp(gain)
+        floatTimerRef.current = setTimeout(() => setFloatingXp(null), 850)
         return nc
       })
     } else { setCombo(0); setLastGain(0) }
@@ -208,10 +213,25 @@ function QuizRunner({ quiz, onBack, onComplete }) {
           <div style={{ fontSize: 16, fontWeight: 600, color: "var(--ink)", lineHeight: 1.55 }}>{q.prompt}</div>
         </div>
 
-        {/* Exercise component */}
-        <div style={{ background: "var(--surface)", borderRadius: "var(--r-lg)", overflow: "hidden",
-          boxShadow: "var(--shadow)", marginBottom: 12 }}>
-          <Comp key={q.id} q={q} onResult={handleResult} />
+        {/* Exercise component + answer animation wrapper */}
+        <div style={{ position: "relative", marginBottom: 12 }}>
+          <div style={{
+            background: "var(--surface)", borderRadius: "var(--r-lg)", overflow: "hidden", boxShadow: "var(--shadow)",
+            animation: answered ? (lastCorrect ? "answer-correct .5s cubic-bezier(.2,.8,.4,1)" : "answer-wrong .45s ease") : "none",
+          }}>
+            <Comp key={q.id} q={q} onResult={handleResult} />
+          </div>
+          {/* Floating XP badge */}
+          {floatingXp !== null && (
+            <div style={{
+              position: "absolute", bottom: "100%", left: "50%", marginBottom: 4,
+              animation: "xp-float .85s ease forwards", pointerEvents: "none",
+              background: "var(--warning)", color: "#000", borderRadius: 20, padding: "5px 14px",
+              fontSize: 14, fontWeight: 800, whiteSpace: "nowrap", boxShadow: "0 3px 12px rgba(255,149,0,.4)",
+            }}>
+              +{floatingXp} XP ⚡
+            </div>
+          )}
         </div>
 
         {/* XP hint */}
