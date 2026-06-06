@@ -5,15 +5,19 @@ import { MCQ } from './exercises.jsx'
 const { useState } = React
 
 /* shared header */
-function SimHeader({ module, title, onBack }) {
+function SimHeader({ module: mod, title, onBack }) {
   return (
     <>
-      <button onClick={onBack} style={{ display: "inline-flex", alignItems: "center", gap: 7, background: "none", border: "none",
-        color: "var(--muted)", fontFamily: "var(--font-head)", fontWeight: 600, fontSize: 15, cursor: "pointer", marginBottom: 16, padding: 0 }}>
-        <Icon name="arrow" size={18} /> חזרה למפת הקורס
-      </button>
-      <div style={{ fontSize: 13.5, fontWeight: 700, color: "var(--accent)", letterSpacing: ".03em", marginBottom: 6 }}>{module} · סימולציה</div>
-      <h1 style={{ fontSize: 30, marginBottom: 18 }}>{title}</h1>
+      <div style={{ height: 14 }} />
+      <div style={{ padding: "4px 18px 8px", display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
+        <div>
+          <div style={{ fontSize: 12, color: "var(--muted)", marginBottom: 2 }}>{mod || "סימולציה אינטראקטיבית"}</div>
+          <div style={{ fontSize: 24, fontWeight: 700, color: "var(--ink)", letterSpacing: "-0.3px", lineHeight: 1.2 }}>{title}</div>
+        </div>
+        <button onClick={onBack} style={{ background: "none", border: "none", fontSize: 15, fontWeight: 600, color: "var(--accent)", cursor: "pointer", paddingBottom: 4 }}>
+          ‹ חזרה
+        </button>
+      </div>
     </>
   )
 }
@@ -44,8 +48,9 @@ function WordPredictionSim({ module = "איך AI באמת חושב", title = "ה
     setIdx((i) => i + 1); setGuess(null); setRevealed(false)
   }
   return (
-    <div style={{ maxWidth: 680, margin: "0 auto", animation: "fade-up .35s ease" }}>
+    <div style={{ maxWidth: "var(--maxw)", margin: "0 auto", animation: "fade-up .35s ease", paddingBottom: 90 }}>
       <SimHeader module={module} title={title} onBack={onBack} />
+      <div style={{ padding: "0 16px" }}>
       <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 18 }}>
         <div style={{ flex: 1 }}><ProgressBar value={((idx + (revealed ? 1 : 0)) / WP_EXAMPLES.length) * 100} height={9} /></div>
         <span style={{ fontFamily: "var(--font-head)", fontWeight: 700, fontSize: 14, color: "var(--muted)" }}>משפט {idx + 1} / {WP_EXAMPLES.length}</span>
@@ -132,6 +137,7 @@ function WordPredictionSim({ module = "איך AI באמת חושב", title = "ה
           </div>
         </Card>
       )}
+      </div>
     </div>
   )
 }
@@ -187,8 +193,9 @@ function ToolsDifferencesSim({ module = "איך AI באמת חושב", title = "
   const isLast = step === TD_STEPS.length - 1
   const next = () => { if (isLast) { onComplete && onComplete(); return } setStep((i) => i + 1); setAnswered(false) }
   return (
-    <div style={{ maxWidth: 680, margin: "0 auto", animation: "fade-up .35s ease" }}>
+    <div style={{ maxWidth: "var(--maxw)", margin: "0 auto", animation: "fade-up .35s ease", paddingBottom: 90 }}>
       <SimHeader module={module} title={title} onBack={onBack} />
+      <div style={{ padding: "0 16px" }}>
       <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 18 }}>
         <div style={{ flex: 1 }}><ProgressBar value={((step + (answered || s.type === "teach" ? 1 : 0)) / TD_STEPS.length) * 100} height={9} /></div>
         <span style={{ fontFamily: "var(--font-head)", fontWeight: 700, fontSize: 14, color: "var(--muted)" }}>{step + 1} / {TD_STEPS.length}</span>
@@ -210,6 +217,7 @@ function ToolsDifferencesSim({ module = "איך AI באמת חושב", title = "
           </>
         )}
       </Card>
+      </div>
     </div>
   )
 }
@@ -251,9 +259,10 @@ function EthicsCyberSim({ module = "אתיקה, סייבר ואבטחת מידע
   const vBg = (lvl) => lvl === "danger" ? "var(--danger-soft)" : lvl === "warn" ? "color-mix(in oklch, var(--gold), white 82%)" : "var(--success-soft)"
 
   return (
-    <div style={{ maxWidth: 760, margin: "0 auto", animation: "fade-up .35s ease" }}>
+    <div style={{ maxWidth: "var(--maxw)", margin: "0 auto", animation: "fade-up .35s ease", paddingBottom: 90 }}>
       <SimHeader module={module} title={title} onBack={onBack} />
 
+      <div style={{ padding: "0 16px" }}>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 22 }}>
         <Card style={{ borderInlineStart: "4px solid var(--success)" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 8, fontFamily: "var(--font-head)", fontWeight: 800, fontSize: 17, marginBottom: 8, color: "var(--success)" }}><Icon name="shield" size={20} /> הגן הסגור (כלים פנימיים)</div>
@@ -318,10 +327,18 @@ function EthicsCyberSim({ module = "אתיקה, סייבר ואבטחת מידע
           מידע סודי, פרטי לקוחות, לוגיקה עסקית וקוד בנקאי — נשארים <b>אך ורק בכלים הפנימיים</b>. בספק לגבי רגישות מידע — תמיד עדיף להישאר בסביבה המוגנת.
         </div>
       </Card>
+      </div>
 
-      <Button variant="primary" size="lg" icon="check" disabled={!tried} onClick={() => onComplete && onComplete()}>
-        {tried ? "סיימתי — להמשך" : "נסו לפחות צירוף אחד בסימולטור"}
-      </Button>
+      <div style={{ position: "fixed", bottom: 0, left: 0, right: 0, maxWidth: "var(--maxw)", margin: "0 auto",
+        background: "rgba(242,242,247,0.95)", borderTop: "0.5px solid var(--line-strong)",
+        backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)", padding: "12px 16px 28px" }}>
+        <button onClick={() => onComplete && onComplete()}
+          disabled={!tried}
+          style={{ width: "100%", background: tried ? "var(--accent)" : "var(--line)", borderRadius: "var(--r-lg)", padding: 16,
+            fontSize: 16, fontWeight: 600, color: tried ? "white" : "var(--muted)", border: "none", cursor: tried ? "pointer" : "default" }}>
+          {tried ? "סיימתי — להמשך" : "נסו לפחות צירוף אחד בסימולטור"}
+        </button>
+      </div>
     </div>
   )
 }
