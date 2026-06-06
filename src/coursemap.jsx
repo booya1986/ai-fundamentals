@@ -332,7 +332,7 @@ export function CourseMap({ modules, progress, onOpenLesson }) {
         <div style={{ position: "absolute", inset: 0, padding: "14px 18px", display: "flex", alignItems: "flex-end", justifyContent: "space-between" }}>
           <div>
             <div style={{ display: "inline-block", fontSize: 9, fontWeight: 700, color: "rgba(255,100,80,.9)", letterSpacing: ".07em", textTransform: "uppercase", background: "rgba(255,59,48,.15)", border: "1px solid rgba(255,59,48,.3)", borderRadius: 20, padding: "2px 8px", marginBottom: 7 }}>
-              AI Course · 2024
+              AI Fundamentals Certification
             </div>
             <div style={{ fontSize: 20, fontWeight: 800, color: "#fff", letterSpacing: "-.3px", lineHeight: 1.15 }}>
               בינה מלאכותית<br />לעולם העבודה
