@@ -21,7 +21,8 @@ const MODULE_EMOJIS = {
 }
 
 export function moduleState(mod, progress) {
-  const keys = mod.lessons.map((l) => `${mod.id}/${l.id}`)
+  const required = mod.lessons.filter((l) => !l.optional)
+  const keys = required.map((l) => `${mod.id}/${l.id}`)
   const doneCount = keys.filter((k) => progress.done.includes(k)).length
   if (doneCount === keys.length) return "done"
   if (doneCount > 0) return "active"
@@ -32,15 +33,17 @@ export function unlockedSet(modules, progress) {
   const unlocked = new Set()
   for (const mod of modules) {
     unlocked.add(mod.id)
-    const allDone = mod.lessons.every((l) => progress.done.includes(`${mod.id}/${l.id}`))
+    const required = mod.lessons.filter((l) => !l.optional)
+    const allDone = required.every((l) => progress.done.includes(`${mod.id}/${l.id}`))
     if (!allDone) break
   }
   return unlocked
 }
 
 function modStats(modules, progress, mod) {
-  const total = mod.lessons.length
-  const completed = mod.lessons.filter((l) => progress.done.includes(`${mod.id}/${l.id}`)).length
+  const required = mod.lessons.filter((l) => !l.optional)
+  const total = required.length
+  const completed = required.filter((l) => progress.done.includes(`${mod.id}/${l.id}`)).length
   const pct = Math.round((completed / total) * 100)
   const isLocked = !unlockedSet(modules, progress).has(mod.id)
   const state = completed === total ? "done" : isLocked ? "locked" : "active"
@@ -112,7 +115,8 @@ function ListMap({ modules, progress, onOpenLesson }) {
       {modules.map((mod, i) => {
         const state = moduleState(mod, progress)
         const isLocked = !unlocked.has(mod.id)
-        const keys = mod.lessons.map((l) => `${mod.id}/${l.id}`)
+        const required = mod.lessons.filter((l) => !l.optional)
+        const keys = required.map((l) => `${mod.id}/${l.id}`)
         const doneInMod = keys.filter((k) => progress.done.includes(k)).length
         const pct = Math.round((doneInMod / keys.length) * 100)
         const gradient = MODULE_GRADIENTS[mod.id] || MODULE_GRADIENTS.m1
@@ -155,7 +159,7 @@ function ListMap({ modules, progress, onOpenLesson }) {
                 </div>
               ) : (
                 <div style={{ fontSize: 12, color: "var(--muted)" }}>
-                  {mod.lessons.length} שיעורים{state === "done" ? " · הושלם" : ""}
+                  {required.length} שיעורים{state === "done" ? " · הושלם" : ""}
                 </div>
               )}
             </div>
@@ -208,6 +212,10 @@ function BoardMap({ modules, progress, onOpenLesson }) {
                         <Icon name={dn ? "check" : lessonKindIcon(les.kind)} size={11} stroke={3} />
                       </span>
                       <span style={{ flex: 1 }}>{les.title}</span>
+                      {les.optional && !dn && (
+                        <span style={{ fontSize: 10, fontWeight: 700, color: "#FF9500", background: "rgba(255,149,0,0.12)",
+                          borderRadius: 6, padding: "2px 6px", whiteSpace: "nowrap" }}>⭐ בונוס XP</span>
+                      )}
                     </div>
                   )
                 })}
@@ -283,6 +291,10 @@ function JourneyMap({ modules, progress, onOpenLesson }) {
                           <span key={les.id} style={{ display: "inline-flex", alignItems: "center", gap: 5, fontSize: 13, color: dn ? "var(--ink-soft)" : "var(--muted)" }}>
                             <Icon name={dn ? "check" : lessonKindIcon(les.kind)} size={13} stroke={2.5} style={{ color: dn ? "var(--success)" : "var(--muted)" }} />
                             {les.title}
+                            {les.optional && !dn && (
+                              <span style={{ fontSize: 10, fontWeight: 700, color: "#FF9500", background: "rgba(255,149,0,0.12)",
+                                borderRadius: 6, padding: "2px 5px" }}>⭐ בונוס</span>
+                            )}
                           </span>
                         )
                       })}

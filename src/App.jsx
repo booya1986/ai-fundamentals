@@ -185,17 +185,17 @@ function App() {
     const add = (id) => { if (!earned.has(id)) { earned.add(id); gained.push(id) } }
     add("first-step")
     MODULES.forEach((m) => {
-      const modDone = m.lessons.every((l) => np.done.includes(`${m.id}/${l.id}`))
+      const modDone = m.lessons.filter((l) => !l.optional).every((l) => np.done.includes(`${m.id}/${l.id}`))
       if (modDone) { add("module-done"); if (m.id === "m3") add("prompt-pro"); if (m.id === "m6") add("safe-pro") }
     })
-    if (MODULES.every((m) => m.lessons.every((l) => np.done.includes(`${m.id}/${l.id}`)))) add("graduate")
+    if (MODULES.every((m) => m.lessons.filter((l) => !l.optional).every((l) => np.done.includes(`${m.id}/${l.id}`)))) add("graduate")
     np.badges = Array.from(earned)
     const after = unlockedSet(MODULES, np)
     const newlyUnlocked = MODULES.find((m) => after.has(m.id) && !before.has(m.id))
     return { np, newlyUnlocked, gained }
   }
   const badgeObjs = (ids) => ids.map((id) => BADGES.find((b) => b.id === id)).filter(Boolean)
-  const isCourseDone = (p) => MODULES.every((m) => m.lessons.every((l) => p.done.includes(`${m.id}/${l.id}`)))
+  const isCourseDone = (p) => MODULES.every((m) => m.lessons.filter((l) => !l.optional).every((l) => p.done.includes(`${m.id}/${l.id}`)))
 
   const completeSimpleLesson = () => {
     if (!current) return
@@ -211,7 +211,7 @@ function App() {
     }
     const { np, newlyUnlocked, gained } = applyDone(progress, [key], 10)
     setProgress(np)
-    const moduleDone = mod.lessons.every((l) => np.done.includes(`${mod.id}/${l.id}`))
+    const moduleDone = mod.lessons.filter((l) => !l.optional).every((l) => np.done.includes(`${mod.id}/${l.id}`))
     if (isCourseDone(np)) { setScreen("certificate"); return }
     if (moduleDone) { setCelebrate({ badges: badgeObjs(gained), nextMod: newlyUnlocked }); setScreen("map") }
     else if (nextLes) openLesson(current.mid, nextLes.id)
@@ -239,7 +239,7 @@ function App() {
     setProgress(np)
     const badges = badgeObjs(allGained)
     const mod = MODULES.find((m) => m.id === mid)
-    const moduleDone = mod.lessons.every((l) => np.done.includes(`${mid}/${l.id}`))
+    const moduleDone = mod.lessons.filter((l) => !l.optional).every((l) => np.done.includes(`${mid}/${l.id}`))
     setNewBadges(badges)
     setResult({ ...res, courseComplete: isCourseDone(np) })
     window.__pendingCelebrate = moduleDone ? { badges, nextMod: newlyUnlocked } : null
