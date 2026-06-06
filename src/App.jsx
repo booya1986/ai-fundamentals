@@ -1,7 +1,7 @@
 // App.jsx — shell, navigation, progress, gamification. No tweak panel.
 import React from 'react'
 import { COURSE, MODULES, LESSON_CONTENT, QUIZZES, COPILOT, BADGES, INITIAL_PROGRESS } from './data.jsx'
-import { Icon, Button, Card, ProgressRing, Pill, Confetti, Medal } from './ui.jsx'
+import { Icon, Button, Card, ProgressBar, ProgressRing, Pill, Confetti, Medal } from './ui.jsx'
 import { COURSE_MAPS, moduleState, unlockedSet, GlyphTile } from './coursemap.jsx'
 import { LessonScreen, QuizRunner } from './lesson.jsx'
 import { CopilotExercise } from './copilot.jsx'
@@ -132,6 +132,7 @@ function ModuleCompleteOverlay({ celebrate, onClose }) {
 
 /* ---------- Theme switcher (3 modern design options) ---------- */
 const THEME_OPTIONS = [
+  { id: "material", name: "Material", sub: "נקי ואלגנטי", dot: "linear-gradient(135deg,#f3f3f6,#e53935 120%)" },
   { id: "aurora", name: "Aurora", sub: "בהיר ורך", dot: "linear-gradient(135deg,#ffd6e0,#d9c7ff,#c7f5e6)" },
   { id: "midnight", name: "Midnight", sub: "כהה מודרני", dot: "linear-gradient(135deg,#2a2350,#ff453a)" },
   { id: "editorial", name: "Editorial", sub: "נקי וחד", dot: "linear-gradient(135deg,#ffffff,#5b5bd6)" },
@@ -225,29 +226,24 @@ function Hero({ progress, onContinue, layout, setLayout }) {
   let next = null
   for (const m of MODULES) { for (const l of m.lessons) { if (!progress.done.includes(`${m.id}/${l.id}`)) { next = { m, l }; break } } if (next) break }
   const layouts = [{ k: "board", label: "לוח", icon: "grid" }, { k: "journey", label: "מסע", icon: "map" }]
-  const L = { ink: "var(--ink)", soft: "var(--ink-soft)", muted: "var(--muted)" }
 
   return (
     <div style={{ marginBottom: 30 }}>
       <Card pad={0} style={{ overflow: "hidden", border: "1px solid var(--line)", boxShadow: "var(--shadow)" }}>
-        <div style={{ display: "flex", flexWrap: "wrap", gap: 30, padding: "34px", alignItems: "center",
-          background: "linear-gradient(125deg, var(--surface-2), var(--accent-soft))" }}>
-          <div style={{ flex: "1 1 320px" }}>
-            <div style={{ fontFamily: "var(--font-head)", fontWeight: 600, fontSize: 14.5, color: "var(--accent)", marginBottom: 8 }}>שלום, נעים לראות אותך</div>
-            <h1 style={{ fontSize: 33, marginBottom: 10, lineHeight: 1.15, letterSpacing: "-0.02em", color: L.ink }}>{COURSE.title}</h1>
-            <p style={{ fontSize: 16.5, color: L.soft, margin: "0 0 22px", maxWidth: 440 }}>{COURSE.subtitle}</p>
-            {next && <Button variant="primary" size="lg" iconEnd="arrowback" onClick={() => onContinue(next.m.id, next.l.id)}>
-              {doneCount > 0 ? "המשך מאיפה שעצרת" : "התחל את הקורס"}
-            </Button>}
+        <div style={{ padding: "28px 28px 24px", background: "var(--surface)" }}>
+          <div style={{ fontFamily: "var(--font-head)", fontWeight: 600, fontSize: 13.5, color: "var(--accent)", marginBottom: 6, letterSpacing: ".02em" }}>שלום, נעים לראות אותך</div>
+          <h1 style={{ fontSize: 28, marginBottom: 8, lineHeight: 1.15, letterSpacing: "-0.02em", color: "var(--ink)" }}>{COURSE.title}</h1>
+          <p style={{ fontSize: 15.5, color: "var(--ink-soft)", margin: "0 0 20px", maxWidth: 480 }}>{COURSE.subtitle}</p>
+          <div style={{ marginBottom: 22 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 8 }}>
+              <span style={{ fontFamily: "var(--font-head)", fontWeight: 700, fontSize: 13.5, color: "var(--accent)" }}>{pct}% הושלם</span>
+              <span style={{ fontSize: 13, color: "var(--muted)" }}>{doneCount}/{totalLessons} שיעורים</span>
+            </div>
+            <ProgressBar value={pct} height={8} />
           </div>
-          <div style={{ flex: "0 0 auto", display: "grid", placeItems: "center" }}>
-            <ProgressRing value={pct} size={142} stroke={13} from="var(--accent)" to="var(--accent-deep)" track="var(--line)">
-              <div style={{ textAlign: "center" }}>
-                <div style={{ fontFamily: "var(--font-head)", fontWeight: 800, fontSize: 36, lineHeight: 1, color: L.ink }}>{pct}%</div>
-                <div style={{ fontSize: 13, color: L.muted, fontWeight: 600 }}>{doneCount}/{totalLessons} שיעורים</div>
-              </div>
-            </ProgressRing>
-          </div>
+          {next && <Button variant="primary" size="lg" icon="arrowback" onClick={() => onContinue(next.m.id, next.l.id)}>
+            {doneCount > 0 ? "המשך מאיפה שעצרת" : "התחל את הקורס"}
+          </Button>}
         </div>
       </Card>
 
@@ -281,7 +277,7 @@ function App() {
   const [result, setResult] = useState(null)
   const [newBadges, setNewBadges] = useState([])
   const [celebrate, setCelebrate] = useState(null)
-  const [theme, setTheme] = useState(() => { try { return localStorage.getItem("ai-course-theme") || "aurora" } catch (e) { return "aurora" } })
+  const [theme, setTheme] = useState(() => { try { return localStorage.getItem("ai-course-theme") || "material" } catch (e) { return "material" } })
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme

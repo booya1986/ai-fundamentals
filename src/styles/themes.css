@@ -1,6 +1,32 @@
 /* themes.css — alternative modern design options (token overrides via [data-theme]).
    Default (no attribute) = "Aurora" from tokens.css + aurora.css. */
 
+/* ============ MATERIAL — clean Google Material 3 ============ */
+:root[data-theme="material"] {
+  --bg:        oklch(0.968 0.004 285);
+  --bg-2:      oklch(0.942 0.006 285);
+  --surface:   oklch(1 0 0);
+  --surface-2: oklch(0.982 0.004 285);
+  --ink:       oklch(0.22 0.015 285);
+  --ink-soft:  oklch(0.46 0.012 285);
+  --muted:     oklch(0.63 0.010 285);
+  --line:      oklch(0.895 0.006 285);
+  --line-soft: oklch(0.935 0.005 285);
+
+  --accent:      oklch(0.6 0.22 25);
+  --accent-deep: oklch(0.52 0.21 25);
+  --accent-soft: oklch(0.95 0.04 25);
+  --accent-ink:  oklch(0.5 0.2 25);
+
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.14), 0 1px 3px rgba(0,0,0,0.08);
+  --shadow:    0 4px 8px rgba(0,0,0,0.10), 0 1px 3px rgba(0,0,0,0.08);
+  --shadow-lg: 0 8px 20px rgba(0,0,0,0.14), 0 2px 8px rgba(0,0,0,0.08);
+}
+:root[data-theme="material"] body {
+  background-color: var(--bg);
+  background-image: none;
+}
+
 /* ============ MIDNIGHT — dark, modern, glowing ============ */
 :root[data-theme="midnight"] {
   --bg:        oklch(0.17 0.02 275);

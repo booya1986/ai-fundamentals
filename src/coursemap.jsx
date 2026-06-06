@@ -30,17 +30,13 @@ function GlyphTile({ glyph, tone, size = 52, state }) {
   const locked = state === "locked"
   return (
     <div style={{
-      width: size, height: size, borderRadius: size * 0.3, flex: "none", display: "grid", placeItems: "center",
-      position: "relative", overflow: "hidden",
-      background: locked ? "var(--bg-2)" : "linear-gradient(145deg, var(--accent), var(--accent-deep))",
+      width: size, height: size, borderRadius: size * 0.28, flex: "none", display: "grid", placeItems: "center",
+      background: locked ? "var(--bg-2)" : "var(--accent)",
       color: locked ? "var(--muted)" : "#fff",
-      boxShadow: locked ? "none"
-        : "0 10px 22px color-mix(in oklch, var(--accent), transparent 58%), inset 0 1px 1px oklch(1 0 0 / 0.45), inset 0 -7px 13px color-mix(in oklch, var(--accent-deep), transparent 35%)",
-      border: locked ? "1.5px solid var(--line)" : "1px solid color-mix(in oklch, var(--accent-deep), transparent 25%)",
+      boxShadow: locked ? "none" : "0 2px 8px color-mix(in oklch, var(--accent), transparent 55%)",
+      border: locked ? "1.5px solid var(--line)" : "none",
     }}>
-      {!locked && <span style={{ position: "absolute", top: 0, left: "16%", right: "16%", height: "44%", borderRadius: "50%",
-        background: "linear-gradient(oklch(1 0 0 / 0.38), transparent)", pointerEvents: "none" }} />}
-      <Icon name={locked ? "lock" : glyph} size={size * 0.46} stroke={2.2} fill={["spark", "star"].includes(glyph) && !locked} style={{ zIndex: 1 }} />
+      <Icon name={locked ? "lock" : glyph} size={size * 0.46} stroke={2.2} fill={["spark", "star"].includes(glyph) && !locked} />
     </div>
   )
 }
@@ -100,7 +96,7 @@ function DuoNode({ hue, state, icon, isActive, onClick, locked }) {
   let top, edge, fg
   if (locked) { top = "var(--surface-2)"; edge = "var(--bg-2)"; fg = "var(--muted)" }
   else if (isActive) { top = "var(--accent)"; edge = "color-mix(in oklch, var(--accent), black 30%)"; fg = "#fff" }
-  else if (state === "done") { top = `oklch(0.67 0.18 ${hue})`; edge = `oklch(0.5 0.2 ${hue})`; fg = "#fff" }
+  else if (state === "done") { top = "var(--success)"; edge = "color-mix(in oklch, var(--success), black 25%)"; fg = "#fff" }
   else { top = "var(--surface-2)"; edge = "var(--bg-2)"; fg = "var(--ink-soft)" }
   return (
     <div style={{ position: "relative" }}>
@@ -112,10 +108,8 @@ function DuoNode({ hue, state, icon, isActive, onClick, locked }) {
       <button className={"duo-puck" + (locked ? " locked" : "")} onClick={onClick}
         style={{ "--puck-edge": edge, width: 74, height: 74, borderRadius: "50%", border: "none",
           background: top, color: fg, display: "grid", placeItems: "center",
-          cursor: locked ? "not-allowed" : "pointer", position: "relative" }}>
-        <span style={{ position: "absolute", top: 8, left: "20%", right: "20%", height: "32%", borderRadius: "50%",
-          background: locked ? "transparent" : "linear-gradient(oklch(1 0 0 / 0.35), transparent)" }} />
-        <Icon name={icon} size={30} stroke={2.7} fill={["star", "play", "trophy"].includes(icon) && !locked} style={{ zIndex: 1 }} />
+          cursor: locked ? "not-allowed" : "pointer" }}>
+        <Icon name={icon} size={30} stroke={2.7} fill={["star", "play", "trophy"].includes(icon) && !locked} />
       </button>
     </div>
   )
@@ -139,10 +133,10 @@ function PathMap({ modules, progress, onOpenLesson, onLocked }) {
         const firstUndone = mod.lessons.find((l) => !progress.done.includes(`${mod.id}/${l.id}`))
         return (
           <section key={mod.id} style={{ marginBottom: 8 }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 14, padding: "16px 20px", borderRadius: 22,
+            <div style={{ display: "flex", alignItems: "center", gap: 14, padding: "16px 20px", borderRadius: 18,
               marginTop: mi === 0 ? 0 : 40, marginBottom: 30, color: locked ? "var(--ink-soft)" : "#fff",
-              background: locked ? "var(--bg-2)" : `linear-gradient(135deg, oklch(0.62 0.18 ${mod.color}), oklch(0.5 0.2 ${(Number(mod.color) + 30) % 360}))`,
-              boxShadow: locked ? "none" : `0 6px 0 oklch(0.42 0.18 ${mod.color}), 0 14px 30px oklch(0.5 0.2 ${mod.color} / 0.35)`,
+              background: locked ? "var(--bg-2)" : "var(--accent)",
+              boxShadow: locked ? "none" : "0 4px 12px color-mix(in oklch, var(--accent), transparent 60%)",
               border: locked ? "1px solid var(--line)" : "none" }}>
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ fontSize: 12.5, fontWeight: 700, opacity: 0.85, letterSpacing: ".06em" }}>מקטע {mi + 1} · {ms.completed}/{ms.total} שיעורים</div>
@@ -259,14 +253,14 @@ function JourneyMap({ modules, progress, onOpenLesson, onLocked }) {
           return (
             <div key={mod.id} style={{ display: "flex", gap: 0, alignItems: "stretch", position: "relative" }}>
               <div style={{ width: 64, flex: "none", display: "flex", flexDirection: "column", alignItems: "center" }}>
-                <span style={{ width: 3, flex: 1, background: mi === 0 ? "transparent" : (ms.state !== "locked" ? `oklch(0.7 0.1 ${mod.color})` : "var(--line)") }} />
+                <span style={{ width: 3, flex: 1, background: mi === 0 ? "transparent" : (ms.state !== "locked" ? "var(--accent-soft)" : "var(--line)") }} />
                 <div style={{ width: 40, height: 40, borderRadius: "50%", flex: "none", display: "grid", placeItems: "center",
-                  background: ms.state === "done" ? "var(--success)" : locked ? "var(--bg-2)" : `oklch(0.58 0.16 ${mod.color})`,
+                  background: ms.state === "done" ? "var(--success)" : locked ? "var(--bg-2)" : "var(--accent)",
                   color: locked ? "var(--muted)" : "#fff", border: "3px solid var(--bg)", boxShadow: "var(--shadow-sm)", zIndex: 2,
                   fontFamily: "var(--font-head)", fontWeight: 800, fontSize: 15 }}>
                   {ms.state === "done" ? <Icon name="check" size={18} stroke={3} /> : locked ? <Icon name="lock" size={15} /> : mi + 1}
                 </div>
-                <span style={{ width: 3, flex: 1, background: mi === modules.length - 1 ? "transparent" : (ms.state === "done" ? `oklch(0.7 0.1 ${mod.color})` : "var(--line)") }} />
+                <span style={{ width: 3, flex: 1, background: mi === modules.length - 1 ? "transparent" : (ms.state === "done" ? "var(--accent-soft)" : "var(--line)") }} />
               </div>
               <div style={{ flex: 1, padding: "10px 0 26px" }}>
                 <Card hover={!locked} style={{ opacity: locked ? 0.78 : 1 }} onClick={locked ? onLocked : () => onOpenLesson(mod.id, firstUndone.id)}>
@@ -280,7 +274,7 @@ function JourneyMap({ modules, progress, onOpenLesson, onLocked }) {
                   </div>
                   {!locked && (
                     <div style={{ marginTop: 4 }}>
-                      <ProgressBar value={ms.pct} height={8} tone={`oklch(0.58 0.16 ${mod.color})`} />
+                      <ProgressBar value={ms.pct} height={8} />
                       <div style={{ display: "flex", gap: 14, marginTop: 12, flexWrap: "wrap" }}>
                         {mod.lessons.map((les) => {
                           const dn = progress.done.includes(`${mod.id}/${les.id}`)
