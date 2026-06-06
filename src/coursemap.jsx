@@ -349,7 +349,6 @@ export function CourseMap({ modules, progress, onOpenLesson }) {
             <div style={{ fontSize: 20, fontWeight: 800, color: "#fff", letterSpacing: "-.3px", lineHeight: 1.15 }}>
               בינה מלאכותית<br />לעולם העבודה
             </div>
-            <div style={{ fontSize: 11, color: "rgba(255,255,255,.4)", marginTop: 3 }}>{modules.length} מודולים · {totalLessons} שיעורים</div>
           </div>
           <div style={{ textAlign: "left", flexShrink: 0 }}>
             <div style={{ fontSize: 28, fontWeight: 800, color: "var(--accent)", lineHeight: 1 }}>{coverPct}%</div>
