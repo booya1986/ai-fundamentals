@@ -240,8 +240,8 @@ function TabBar({ active, onNavigate }) {
       borderTop: "0.5px solid var(--line-strong)",
       backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)",
       padding: "8px 0 env(safe-area-inset-bottom, 16px)",
-      display: "flex", justifyContent: "space-around",
     }}>
+      <div style={{ maxWidth: "var(--maxw)", margin: "0 auto", display: "flex", justifyContent: "space-around" }}>
       {tabs.map((t) => {
         const isActive = active === t.id
         return (
@@ -263,6 +263,7 @@ function TabBar({ active, onNavigate }) {
           </button>
         )
       })}
+      </div>
     </div>
   )
 }

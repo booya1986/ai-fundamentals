@@ -50,6 +50,12 @@
   --maxw: 430px;
 }
 
+@media (min-width: 640px) {
+  :root {
+    --maxw: 680px;
+  }
+}
+
 * { box-sizing: border-box; }
 html, body { margin: 0; padding: 0; }
 body {
