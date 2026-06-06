@@ -9,26 +9,29 @@ const { useState, useRef } = React
 function VideoPlayer({ src, poster, label, onEnded }) {
   if (src) {
     return (
-      <div style={{ borderRadius: "var(--r-lg)", overflow: "hidden", boxShadow: "var(--shadow)", border: "1px solid var(--line)", background: "#000" }}>
+      <div style={{ borderRadius: "var(--r-lg)", overflow: "hidden", boxShadow: "0 4px 20px rgba(0,0,0,0.25)", background: "#000", marginBottom: 14 }}>
         <video controls playsInline poster={poster} onEnded={onEnded}
-          style={{ width: "100%", display: "block", aspectRatio: "16 / 9", background: "#000" }}>
+          style={{ width: "100%", display: "block", aspectRatio: "16/9", background: "#000" }}>
           <source src={src} type="video/mp4" />
         </video>
       </div>
     )
   }
-  // placeholder (no media embedded yet)
   return (
-    <div style={{ borderRadius: "var(--r-lg)", overflow: "hidden", boxShadow: "var(--shadow)", border: "1px solid var(--line)" }}>
-      <div className="stripe-ph" style={{ aspectRatio: "16 / 9", position: "relative", flexDirection: "column", gap: 14,
-        background: "linear-gradient(150deg, oklch(0.28 0.04 274), oklch(0.20 0.03 285))", color: "oklch(0.85 0.03 280)",
-        backgroundImage: "repeating-linear-gradient(135deg, oklch(1 0 0 / 0.03) 0 14px, transparent 14px 28px)" }}>
-        <div style={{ width: 78, height: 78, borderRadius: "50%", display: "grid", placeItems: "center",
-          background: "oklch(1 0 0 / 0.95)", color: "var(--accent)", boxShadow: "0 10px 30px oklch(0 0 0 / 0.3)" }}>
-          <Icon name="play" size={34} fill style={{ marginInlineStart: 4 }} />
-        </div>
-        <div style={{ fontFamily: "var(--font-mono)", fontSize: 12.5, opacity: 0.8 }}>{label}</div>
-        <div style={{ position: "absolute", insetInlineStart: 14, top: 14, fontFamily: "var(--font-mono)", fontSize: 11, opacity: 0.5 }}>[ הסרטון יוטמע כאן ]</div>
+    <div style={{ borderRadius: "var(--r-lg)", overflow: "hidden", background: "#000", aspectRatio: "16/9", position: "relative",
+      display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 14,
+      boxShadow: "0 4px 20px rgba(0,0,0,0.25)" }}>
+      <div style={{ position: "absolute", inset: 0, background: "linear-gradient(135deg,#0d1b2a,#1b2838)" }} />
+      {/* Play button */}
+      <div style={{ position: "relative", zIndex: 1, width: 60, height: 60, background: "rgba(255,255,255,0.15)",
+        borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center",
+        backdropFilter: "blur(10px)", border: "1.5px solid rgba(255,255,255,0.25)", boxShadow: "0 4px 16px rgba(0,0,0,0.3)" }}>
+        <div style={{ width: 0, height: 0, borderStyle: "solid", borderWidth: "11px 0 11px 19px",
+          borderColor: "transparent transparent transparent white", marginRight: -3 }} />
+      </div>
+      <div style={{ position: "absolute", bottom: 10, left: 12, background: "rgba(0,0,0,0.6)",
+        borderRadius: 6, padding: "2px 6px", fontSize: 10, color: "white", fontWeight: 600 }}>
+        {label || "סרטון"}
       </div>
     </div>
   )
@@ -38,60 +41,100 @@ function VideoPlayer({ src, poster, label, onEnded }) {
 function LessonScreen({ content, onBack, onComplete, alreadyDone }) {
   const [showTranscript, setShowTranscript] = useState(false)
   const isReading = content.kind === "reading" || content.kind === "diagnostic"
+
   return (
-    <div style={{ maxWidth: 800, margin: "0 auto", animation: "fade-up .35s ease" }}>
-      <button onClick={onBack} style={{ display: "inline-flex", alignItems: "center", gap: 7, background: "none", border: "none",
-        color: "var(--muted)", fontFamily: "var(--font-head)", fontWeight: 600, fontSize: 15, cursor: "pointer", marginBottom: 16, padding: 0 }}>
-        <Icon name="arrow" size={18} /> חזרה למפת הקורס
-      </button>
-      <div style={{ fontSize: 13.5, fontWeight: 700, color: "var(--accent)", letterSpacing: ".03em", marginBottom: 6 }}>{content.module}</div>
-      <h1 style={{ fontSize: 32, marginBottom: 8 }}>{content.title}</h1>
-      <div style={{ display: "flex", gap: 14, marginBottom: 22, color: "var(--muted)", fontSize: 15, flexWrap: "wrap" }}>
-        <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}><Icon name="clock" size={16} /> {content.min} דקות</span>
-        <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
-          <Icon name={isReading ? "book" : "play"} size={15} fill={!isReading} /> {isReading ? "קריאה" : "סרטון"} + תקציר
-        </span>
+    <div style={{ animation: "fade-up .3s ease", paddingBottom: 90 }}>
+      {/* Status bar spacer */}
+      <div style={{ height: 14 }} />
+
+      {/* Nav bar */}
+      <div style={{ padding: "4px 18px 8px", display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
+        <div>
+          <div style={{ fontSize: 12, color: "var(--muted)", marginBottom: 2 }}>{content.module}</div>
+          <div style={{ fontSize: 24, fontWeight: 700, color: "var(--ink)", letterSpacing: "-0.3px", lineHeight: 1.2 }}>{content.title}</div>
+        </div>
+        <button onClick={onBack} style={{ background: "none", border: "none", fontSize: 15, fontWeight: 600,
+          color: "var(--accent)", cursor: "pointer", paddingBottom: 4, flexShrink: 0 }}>
+          ‹ חזרה
+        </button>
       </div>
 
-      {!isReading && <VideoPlayer src={content.media} poster={content.poster} label={content.videoLabel} />}
-
-      {content.summary && (
-        <div style={{ marginTop: isReading ? 0 : 28 }}>
-          <h3 style={{ fontSize: 21, marginBottom: 10 }}>{isReading ? "מה חשוב לדעת" : "תקציר השיעור"}</h3>
-          <p style={{ fontSize: 17.5, lineHeight: 1.7, color: "var(--ink-soft)", margin: 0 }}>{content.summary}</p>
+      {/* Progress bar */}
+      <div style={{ padding: "0 16px 12px" }}>
+        <div style={{ background: "var(--line)", borderRadius: 3, height: 3, overflow: "hidden" }}>
+          <div style={{ background: "var(--accent)", width: alreadyDone ? "100%" : "33%", height: "100%", borderRadius: 3 }} />
         </div>
-      )}
+      </div>
 
-      {content.keypoints && (
-        <div style={{ marginTop: 26, display: "grid", gap: 12 }}>
-          {content.keypoints.map((k, i) => (
-            <div key={i} style={{ display: "flex", gap: 14, padding: "16px 18px", borderRadius: "var(--r)", background: "var(--surface)", border: "1px solid var(--line)", boxShadow: "var(--shadow-sm)" }}>
-              <span style={{ flex: "none", width: 34, height: 34, borderRadius: 10, background: "var(--accent-soft)", color: "var(--accent)", display: "grid", placeItems: "center", fontFamily: "var(--font-head)", fontWeight: 800 }}>{i + 1}</span>
-              <div>
-                <div style={{ fontFamily: "var(--font-head)", fontWeight: 700, fontSize: 16.5, marginBottom: 2 }}>{k.h}</div>
-                <div style={{ fontSize: 15.5, color: "var(--ink-soft)", lineHeight: 1.5 }}>{k.t}</div>
-              </div>
+      <div style={{ padding: "0 16px" }}>
+        {/* Video player (video lessons only) */}
+        {!isReading && <VideoPlayer src={content.media} poster={content.poster} label={content.videoLabel} />}
+
+        {/* Summary / main content card */}
+        {content.summary && (
+          <div style={{ background: "var(--surface)", borderRadius: "var(--r-lg)", padding: "16px 18px",
+            boxShadow: "var(--shadow)", marginBottom: 12 }}>
+            <div style={{ fontSize: 15, color: "var(--ink)", lineHeight: 1.65 }}>{content.summary}</div>
+          </div>
+        )}
+
+        {/* Key points */}
+        {content.keypoints && content.keypoints.length > 0 && (
+          <>
+            <div style={{ fontSize: 13, fontWeight: 600, color: "var(--muted)", textTransform: "uppercase",
+              letterSpacing: "0.05em", marginBottom: 6 }}>נקודות עיקריות</div>
+            <div style={{ background: "var(--surface)", borderRadius: "var(--r-lg)", overflow: "hidden",
+              boxShadow: "var(--shadow)", marginBottom: 12 }}>
+              {content.keypoints.map((k, i) => (
+                <div key={i} style={{ padding: "13px 16px", display: "flex", alignItems: "flex-start", gap: 12,
+                  borderBottom: i < content.keypoints.length - 1 ? "0.5px solid var(--line)" : "none" }}>
+                  <div style={{ width: 26, height: 26, background: ["var(--accent)", "var(--warning)", "var(--success)"][i % 3],
+                    borderRadius: 7, display: "flex", alignItems: "center", justifyContent: "center",
+                    fontSize: 12, color: "white", fontWeight: 700, flexShrink: 0, marginTop: 1 }}>
+                    {i + 1}
+                  </div>
+                  <div>
+                    <div style={{ fontSize: 14, fontWeight: 600, color: "var(--ink)", marginBottom: 2 }}>{k.h}</div>
+                    <div style={{ fontSize: 13, color: "var(--ink-soft)", lineHeight: 1.5 }}>{k.t}</div>
+                  </div>
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
-      )}
+          </>
+        )}
 
-      {content.transcript && (
-        <>
-          <button onClick={() => setShowTranscript((s) => !s)} style={{ marginTop: 22, display: "inline-flex", alignItems: "center", gap: 8,
-            background: "none", border: "none", color: "var(--accent)", fontFamily: "var(--font-head)", fontWeight: 600, fontSize: 15.5, cursor: "pointer", padding: 0 }}>
-            <Icon name="book" size={18} /> {showTranscript ? "הסתר תמלול" : (isReading ? "הצג הרחבה" : "הצג תמלול הסרטון")}
-          </button>
-          {showTranscript && (
-            <p style={{ marginTop: 12, padding: "18px 20px", borderRadius: "var(--r)", background: "var(--bg-2)", fontSize: 16,
-              lineHeight: 1.8, color: "var(--ink-soft)", borderInlineStart: "3px solid var(--accent)", animation: "fade-up .25s ease" }}>{content.transcript}</p>
-          )}
-        </>
-      )}
+        {/* Transcript toggle */}
+        {content.transcript && (
+          <>
+            <button onClick={() => setShowTranscript((s) => !s)} style={{ background: "none", border: "none",
+              color: "var(--accent)", fontSize: 14, fontWeight: 600, cursor: "pointer", padding: "8px 0", marginBottom: 8 }}>
+              {showTranscript ? "הסתר תמלול ▲" : (isReading ? "הצג הרחבה ▼" : "הצג תמלול ▼")}
+            </button>
+            {showTranscript && (
+              <div style={{ background: "var(--surface)", borderRadius: "var(--r-lg)", padding: "16px 18px",
+                marginBottom: 12, boxShadow: "var(--shadow)", borderRight: "3px solid var(--accent)",
+                fontSize: 14, lineHeight: 1.75, color: "var(--ink-soft)", animation: "fade-up .2s ease" }}>
+                {content.transcript}
+              </div>
+            )}
+          </>
+        )}
 
-      <div style={{ marginTop: 34, display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap" }}>
-        <Button variant="primary" size="lg" iconEnd="arrowback" onClick={onComplete}>סיימתי — להמשך</Button>
-        {alreadyDone && <span style={{ display: "inline-flex", alignItems: "center", gap: 7, color: "var(--success)", fontWeight: 600 }}><Icon name="check" size={18} stroke={3} /> השיעור הושלם</span>}
+        {alreadyDone && (
+          <div style={{ textAlign: "center", fontSize: 13, color: "var(--success)", fontWeight: 600, marginBottom: 8 }}>
+            ✓ השיעור הושלם
+          </div>
+        )}
+      </div>
+
+      {/* Sticky CTA */}
+      <div style={{ position: "fixed", bottom: 0, left: 0, right: 0, maxWidth: "var(--maxw)", margin: "0 auto",
+        background: "rgba(242,242,247,0.95)", borderTop: "0.5px solid var(--line-strong)",
+        backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)", padding: "12px 16px 28px" }}>
+        <button onClick={onComplete} style={{ width: "100%", background: "var(--accent)", borderRadius: "var(--r-lg)",
+          padding: 16, fontSize: 16, fontWeight: 600, color: "white", border: "none", cursor: "pointer" }}>
+          המשך לשיעור הבא ›
+        </button>
       </div>
     </div>
   )
