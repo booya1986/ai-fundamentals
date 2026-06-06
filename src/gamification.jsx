@@ -13,14 +13,14 @@ function ResultsScreen({ result, quiz, newBadges, onBackToMap, onRetry, onCertif
   return (
     <div style={{ animation: "fade-up .35s ease", paddingBottom: 90 }}>
       <div style={{ height: 14 }} />
-      <div style={{ padding: "4px 18px 16px" }}>
+      <div style={{ padding: "4px var(--side-pad, 18px) 16px" }}>
         <div style={{ fontSize: 24, fontWeight: 700, color: "var(--ink)", letterSpacing: "-0.3px" }}>
           {perfect ? "מושלם! 🎉" : pct >= 60 ? "כל הכבוד!" : "סיימת!"}
         </div>
         <div style={{ fontSize: 14, color: "var(--muted)", marginTop: 2 }}>{quiz.title}</div>
       </div>
 
-      <div style={{ padding: "0 16px" }}>
+      <div style={{ padding: "0 var(--side-pad, 16px)" }}>
         {/* Score ring */}
         <div style={{ display: "flex", justifyContent: "center", marginBottom: 20 }}>
           <div style={{ position: "relative", width: 120, height: 120 }}>
@@ -83,7 +83,7 @@ function ResultsScreen({ result, quiz, newBadges, onBackToMap, onRetry, onCertif
       {/* Sticky CTAs */}
       <div style={{ position: "fixed", bottom: 0, left: 0, right: 0, maxWidth: "var(--maxw)", margin: "0 auto",
         background: "rgba(242,242,247,0.95)", borderTop: "0.5px solid var(--line-strong)",
-        backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)", padding: "12px 16px 28px" }}>
+        backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)", padding: "12px var(--side-pad, 16px) 28px" }}>
         {courseComplete
           ? <button onClick={onCertificate} style={{ width: "100%", background: "var(--warning)", borderRadius: "var(--r-lg)", padding: 16, fontSize: 16, fontWeight: 600, color: "#000", border: "none", cursor: "pointer", marginBottom: 8 }}>🎓 קבלת תעודת הסיום</button>
           : <button onClick={onBackToMap} style={{ width: "100%", background: "var(--accent)", borderRadius: "var(--r-lg)", padding: 16, fontSize: 16, fontWeight: 600, color: "white", border: "none", cursor: "pointer", marginBottom: 8 }}>המשך לשיעור הבא ›</button>
@@ -110,11 +110,11 @@ function AchievementsView({ badges, progress, onBack }) {
       <div style={{ height: 14 }} />
 
       {/* Large title */}
-      <div style={{ padding: "4px 18px 10px" }}>
+      <div style={{ padding: "4px var(--side-pad, 18px) 10px" }}>
         <div style={{ fontSize: 32, fontWeight: 700, color: "var(--ink)", letterSpacing: "-0.5px", lineHeight: 1.1 }}>ההישגים שלי</div>
       </div>
 
-      <div style={{ padding: "0 16px" }}>
+      <div style={{ padding: "0 var(--side-pad, 16px)" }}>
         {/* Stats pills */}
         <div style={{ display: "flex", gap: 8, marginBottom: 14 }}>
           {[

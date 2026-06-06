@@ -48,11 +48,13 @@
   --font-mono: 'SF Mono', 'JetBrains Mono', ui-monospace, monospace;
 
   --maxw: 430px;
+  --side-pad: 16px;
 }
 
 @media (min-width: 640px) {
   :root {
-    --maxw: 680px;
+    --maxw: 900px;
+    --side-pad: 24px;
   }
 }
 

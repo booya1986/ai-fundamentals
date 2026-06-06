@@ -30,7 +30,7 @@ function CopilotExercise({ ex, onBack, onComplete, alreadyDone }) {
       <div style={{ height: 14 }} />
 
       {/* Nav */}
-      <div style={{ padding: "4px 18px 8px", display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
+      <div style={{ padding: "4px var(--side-pad, 18px) 8px", display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
         <div>
           <div style={{ fontSize: 12, color: "var(--muted)", marginBottom: 2 }}>תרגול · Copilot</div>
           <div style={{ fontSize: 24, fontWeight: 700, color: "var(--ink)", letterSpacing: "-0.3px" }}>נסה בעצמך</div>
@@ -40,7 +40,7 @@ function CopilotExercise({ ex, onBack, onComplete, alreadyDone }) {
         </button>
       </div>
 
-      <div style={{ padding: "0 16px" }}>
+      <div style={{ padding: "0 var(--side-pad, 16px)" }}>
         {/* Task card */}
         <div style={{ background: "var(--surface)", borderRadius: "var(--r-lg)", padding: "16px 18px", boxShadow: "var(--shadow)", marginBottom: 12 }}>
           <div style={{ fontSize: 12, fontWeight: 600, color: "var(--muted)", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 6 }}>המשימה</div>
@@ -115,7 +115,7 @@ function CopilotExercise({ ex, onBack, onComplete, alreadyDone }) {
       {/* Sticky CTA */}
       <div style={{ position: "fixed", bottom: 0, left: 0, right: 0, maxWidth: "var(--maxw)", margin: "0 auto",
         background: "rgba(242,242,247,0.95)", borderTop: "0.5px solid var(--line-strong)",
-        backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)", padding: "12px 16px 28px" }}>
+        backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)", padding: "12px var(--side-pad, 16px) 28px" }}>
         <button onClick={onComplete}
           disabled={!canSubmit}
           style={{ width: "100%", background: canSubmit ? "var(--accent)" : "var(--line-strong)",
