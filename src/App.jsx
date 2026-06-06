@@ -10,6 +10,43 @@ import { ResultsScreen, AchievementsView, CertificateScreen } from './gamificati
 import { scormLoad, scormSave, scormTerminate } from './scorm.js'
 const { useState, useEffect } = React
 
+/* ---------- Diagnostic gate — shown after M0 video, before optional quiz ---------- */
+function DiagnosticGate({ onSkip, onStart }) {
+  return (
+    <div style={{ padding: "0 var(--side-pad, 16px) 40px", animation: "fade-up .3s ease" }}>
+      <div style={{ height: 56, display: "flex", alignItems: "center" }}>
+        <button onClick={onSkip} style={{ background: "none", border: "none", fontSize: 15, fontWeight: 600, color: "var(--accent)", cursor: "pointer", fontFamily: "var(--font-head)" }}>
+          ‹ חזרה
+        </button>
+      </div>
+      <div style={{ textAlign: "center", fontSize: 52, marginBottom: 18 }}>🎯</div>
+      <h2 style={{ textAlign: "center", fontSize: 26, fontWeight: 800, letterSpacing: "-.3px", marginBottom: 20 }}>שאלון אבחון</h2>
+      <div style={{ background: "var(--surface)", borderRadius: "var(--r-xl)", padding: "20px 22px", boxShadow: "var(--shadow)", marginBottom: 24, fontSize: 16, lineHeight: 1.7, color: "var(--ink-soft)", textAlign: "center" }}>
+        השאלון נועד כדי לקבוע את הרמה שלכם ולהתאים את המשך הלמידה.<br />
+        אנחנו ממליצים לעשות אותו.
+      </div>
+      <div style={{ display: "flex", gap: 12, marginBottom: 20 }}>
+        <button onClick={onSkip} style={{
+          flex: 1, padding: "14px 0", borderRadius: "var(--r-lg)", border: "1.5px solid var(--line)",
+          background: "transparent", fontSize: 15, fontWeight: 600, color: "var(--muted)",
+          cursor: "pointer", fontFamily: "var(--font-head)",
+        }}>דלג</button>
+        <button onClick={onStart} style={{
+          flex: 2, padding: "14px 0", borderRadius: "var(--r-lg)", border: "none",
+          background: "var(--accent)", fontSize: 15, fontWeight: 700, color: "#fff",
+          cursor: "pointer", fontFamily: "var(--font-head)",
+        }}>לביצוע ›</button>
+      </div>
+      <div style={{ background: "rgba(255,149,0,.1)", border: "1px solid rgba(255,149,0,.25)", borderRadius: "var(--r-lg)", padding: "14px 16px", display: "flex", gap: 12, alignItems: "flex-start" }}>
+        <span style={{ fontSize: 20, flexShrink: 0 }}>⭐</span>
+        <span style={{ fontSize: 14, color: "var(--ink-soft)", lineHeight: 1.6 }}>
+          השלמת השאלון תזכה אותך ב-<strong>240 XP בונוס</strong> וחוויית למידה מותאמת יותר.
+        </span>
+      </div>
+    </div>
+  )
+}
+
 function loadProgress() { return scormLoad(INITIAL_PROGRESS) }
 
 // Map course progress → SCORM completion/score for cmi reporting.
@@ -205,12 +242,14 @@ function App() {
     const nextLes = mod.lessons[i + 1]
     if (progress.done.includes(key)) {
       // Revision mode — lesson already done, just navigate forward without awarding XP
+      if (current.mid === "m0" && current.lid === "l1") { setScreen("diagnostic-gate"); return }
       if (nextLes) openLesson(current.mid, nextLes.id)
       else setScreen("map")
       return
     }
     const { np, newlyUnlocked, gained } = applyDone(progress, [key], 10)
     setProgress(np)
+    if (current.mid === "m0" && current.lid === "l1") { setScreen("diagnostic-gate"); return }
     const moduleDone = mod.lessons.filter((l) => !l.optional).every((l) => np.done.includes(`${mod.id}/${l.id}`))
     if (isCourseDone(np)) { setScreen("certificate"); return }
     if (moduleDone) { setCelebrate({ badges: badgeObjs(gained), nextMod: newlyUnlocked }); setScreen("map") }
@@ -284,6 +323,9 @@ function App() {
           }}>
             ↺ איפוס
           </button>
+        )}
+        {screen === "diagnostic-gate" && (
+          <DiagnosticGate onSkip={() => setScreen("map")} onStart={() => openLesson("m0", "l2")} />
         )}
         {screen === "lesson" && lessonContent && (
           <LessonScreen content={lessonContent} alreadyDone={progress.done.includes(`${current.mid}/${current.lid}`)}
