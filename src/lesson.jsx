@@ -146,13 +146,14 @@ function QuizRunner({ quiz, onBack, onComplete }) {
   const [answered, setAnswered] = useState(false)
   const [correctCount, setCorrectCount] = useState(0)
   const [lastCorrect, setLastCorrect] = useState(false)
-  const [combo, setCombo] = useState(0)        // consecutive correct
+  const [combo, setCombo] = useState(0)
   const [maxCombo, setMaxCombo] = useState(0)
   const [earnedXp, setEarnedXp] = useState(0)
   const [lastGain, setLastGain] = useState(0)
   const q = quiz.questions[idx]
   const Comp = EXERCISE_COMPONENTS[q.type]
   const isLast = idx === quiz.questions.length - 1
+  const total = quiz.questions.length
 
   const handleResult = (ok) => {
     setAnswered(true); setLastCorrect(ok)
@@ -160,7 +161,7 @@ function QuizRunner({ quiz, onBack, onComplete }) {
       setCorrectCount((c) => c + 1)
       setCombo((prev) => {
         const nc = prev + 1
-        const bonus = (nc - 1) * 5            // 2nd in a row +5, 3rd +10, ...
+        const bonus = (nc - 1) * 5
         const gain = quiz.xpPerCorrect + bonus
         setEarnedXp((x) => x + gain); setLastGain(gain)
         setMaxCombo((m) => Math.max(m, nc))
@@ -168,52 +169,115 @@ function QuizRunner({ quiz, onBack, onComplete }) {
       })
     } else { setCombo(0); setLastGain(0) }
   }
+
   const next = () => {
-    if (isLast) { onComplete({ correct: correctCount, total: quiz.questions.length, xp: earnedXp, maxCombo }); return }
+    if (isLast) { onComplete({ correct: correctCount, total, xp: earnedXp, maxCombo }); return }
     setIdx((i) => i + 1); setAnswered(false); setLastCorrect(false)
   }
 
   return (
-    <div style={{ maxWidth: 720, margin: "0 auto", animation: "fade-up .35s ease" }}>
-      <button onClick={onBack} style={{ display: "inline-flex", alignItems: "center", gap: 7, background: "none", border: "none",
-        color: "var(--muted)", fontFamily: "var(--font-head)", fontWeight: 600, fontSize: 15, cursor: "pointer", marginBottom: 18, padding: 0 }}>
-        <Icon name="arrow" size={18} /> יציאה מהתרגול
-      </button>
+    <div style={{ animation: "fade-up .3s ease", paddingBottom: 90 }}>
+      <div style={{ height: 14 }} />
 
-      <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 8 }}>
-        <div style={{ flex: 1 }}><ProgressBar value={((idx + (answered ? 1 : 0)) / quiz.questions.length) * 100} height={10} /></div>
-        <span style={{ fontFamily: "var(--font-head)", fontWeight: 700, fontSize: 14.5, color: "var(--muted)", whiteSpace: "nowrap" }}>{idx + 1} / {quiz.questions.length}</span>
+      {/* Nav */}
+      <div style={{ padding: "4px 18px 8px", display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
+        <div>
+          <div style={{ fontSize: 12, color: "var(--muted)", marginBottom: 2 }}>חידון · שאלה {idx + 1} מתוך {total}</div>
+          <div style={{ fontSize: 24, fontWeight: 700, color: "var(--ink)", letterSpacing: "-0.3px" }}>בחן את עצמך</div>
+        </div>
+        <button onClick={onBack} style={{ background: "none", border: "none", fontSize: 15, fontWeight: 600, color: "var(--accent)", cursor: "pointer", paddingBottom: 4 }}>
+          יציאה
+        </button>
       </div>
-      <div style={{ display: "flex", gap: 8, marginBottom: 22, flexWrap: "wrap", alignItems: "center" }}>
-        <span style={{ display: "inline-flex", alignItems: "center", gap: 6, fontSize: 13, fontWeight: 700, color: "var(--accent-ink)", background: "var(--accent-soft)", padding: "4px 11px", borderRadius: 999 }}>
-          {EX_TYPES[q.type]?.label || "שאלה"}
-        </span>
-        <span style={{ display: "inline-flex", alignItems: "center", gap: 6, fontSize: 13, fontWeight: 700, color: "var(--gold-deep)", background: "color-mix(in oklch, var(--gold), white 80%)", padding: "4px 11px", borderRadius: 999 }}>
-          <Icon name="bolt" size={13} fill /> {earnedXp} XP
-        </span>
-        {combo >= 2 && (
-          <span style={{ display: "inline-flex", alignItems: "center", gap: 6, fontSize: 13, fontWeight: 800, color: "#fff",
-            background: "linear-gradient(135deg, var(--accent), oklch(0.62 0.2 40))", padding: "4px 12px", borderRadius: 999,
-            animation: "pop-in .35s cubic-bezier(.2,.8,.2,1)" }}>
-            <Icon name="flame" size={13} fill /> רצף ×{combo} · בונוס +{(combo - 1) * 5}
-          </span>
+
+      {/* Progress dots */}
+      <div style={{ display: "flex", gap: 5, padding: "0 18px 14px", alignItems: "center" }}>
+        {Array.from({ length: total }, (_, i) => (
+          <div key={i} style={{
+            height: 5, flex: 1, borderRadius: 3,
+            background: i < idx ? "var(--success)" : i === idx ? "var(--accent)" : "var(--line)",
+          }} />
+        ))}
+        <span style={{ fontSize: 11, color: "var(--muted)", marginRight: 4, flexShrink: 0 }}>{idx + 1}/{total}</span>
+      </div>
+
+      <div style={{ padding: "0 16px" }}>
+        {/* Question card */}
+        <div style={{ background: "var(--surface)", borderRadius: "var(--r-lg)", padding: "20px 18px",
+          boxShadow: "var(--shadow)", marginBottom: 14 }}>
+          <div style={{ fontSize: 16, fontWeight: 600, color: "var(--ink)", lineHeight: 1.55 }}>{q.prompt}</div>
+        </div>
+
+        {/* Exercise component */}
+        <div style={{ background: "var(--surface)", borderRadius: "var(--r-lg)", overflow: "hidden",
+          boxShadow: "var(--shadow)", marginBottom: 12 }}>
+          <Comp key={q.id} q={q} onResult={handleResult} />
+        </div>
+
+        {/* XP hint */}
+        {!answered && (
+          <div style={{ textAlign: "center", marginBottom: 12 }}>
+            <span style={{ fontSize: 12, color: "var(--muted)" }}>תשובה נכונה = </span>
+            <span style={{ fontSize: 12, fontWeight: 700, color: "var(--warning)" }}>+{quiz.xpPerCorrect} XP ⚡</span>
+            {combo >= 2 && <span style={{ fontSize: 12, fontWeight: 800, color: "var(--accent)", marginRight: 6 }}>🔥 רצף ×{combo}</span>}
+          </div>
+        )}
+
+        {/* Post-answer feedback */}
+        {answered && (
+          <div style={{ animation: "fade-up .25s ease" }}>
+            {/* Feedback banner */}
+            <div style={{
+              background: lastCorrect ? "var(--success-soft)" : "var(--accent-soft)",
+              border: `1.5px solid ${lastCorrect ? "#BBF7D0" : "#FECACA"}`,
+              borderRadius: "var(--r-lg)", padding: "16px 18px", marginBottom: 12,
+              display: "flex", gap: 12, alignItems: "flex-start",
+            }}>
+              <div style={{ width: 36, height: 36, background: lastCorrect ? "var(--success)" : "var(--accent)",
+                borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center",
+                flexShrink: 0, fontSize: 16, color: "white", fontWeight: 700 }}>
+                {lastCorrect ? "✓" : "✕"}
+              </div>
+              <div>
+                <div style={{ fontSize: 15, fontWeight: 700, color: lastCorrect ? "#166534" : "var(--accent-ink)", marginBottom: 4 }}>
+                  {lastCorrect ? "נכון! כל הכבוד" : "לא הפעם — אבל זה בסדר"}
+                </div>
+                {q.explain && <div style={{ fontSize: 13, color: lastCorrect ? "#15803D" : "var(--ink-soft)", lineHeight: 1.5 }}>{q.explain}</div>}
+              </div>
+            </div>
+
+            {/* XP earned */}
+            {lastCorrect && lastGain > 0 && (
+              <div style={{ textAlign: "center", marginBottom: 12 }}>
+                <div style={{ display: "inline-flex", alignItems: "center", gap: 7, background: "var(--surface)",
+                  borderRadius: 20, padding: "8px 18px", boxShadow: "var(--shadow)" }}>
+                  <span style={{ fontSize: 16 }}>⚡</span>
+                  <span style={{ fontSize: 15, fontWeight: 700, color: "var(--warning)" }}>+{lastGain} XP</span>
+                  {combo >= 2 && <span style={{ fontSize: 12, color: "var(--muted)" }}>כולל בונוס רצף</span>}
+                </div>
+              </div>
+            )}
+          </div>
         )}
       </div>
 
-      <Card pad={26} style={{ marginBottom: 18 }}>
-        <h2 style={{ fontSize: 22, lineHeight: 1.35, marginBottom: 22 }}>{q.prompt}</h2>
-        <Comp key={q.id} q={q} onResult={handleResult} />
-      </Card>
-
+      {/* Sticky CTA */}
       {answered && (
-        <div style={{ display: "flex", justifyContent: "flex-start", alignItems: "center", gap: 14, animation: "fade-up .25s ease" }}>
-          <Button variant={lastCorrect ? "primary" : "deep"} size="lg" iconEnd="arrowback" onClick={next}>
-            {isLast ? "סיום וצפייה בתוצאות" : "השאלה הבאה"}
-          </Button>
-          {lastCorrect && (
-            <span style={{ display: "inline-flex", alignItems: "center", gap: 6, fontFamily: "var(--font-head)", fontWeight: 800, color: "var(--gold-deep)" }}>
-              <Icon name="bolt" size={18} fill /> +{lastGain} XP{combo >= 2 ? ` (כולל בונוס רצף)` : ""}
-            </span>
+        <div style={{ position: "fixed", bottom: 0, left: 0, right: 0, maxWidth: "var(--maxw)", margin: "0 auto",
+          background: "rgba(242,242,247,0.95)", borderTop: "0.5px solid var(--line-strong)",
+          backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)", padding: "12px 16px 28px",
+          animation: "fade-up .2s ease" }}>
+          <button onClick={next} style={{ width: "100%", background: "var(--accent)", borderRadius: "var(--r-lg)",
+            padding: 16, fontSize: 16, fontWeight: 600, color: "white", border: "none", cursor: "pointer",
+            marginBottom: lastCorrect ? 0 : 8 }}>
+            {isLast ? "סיום וצפייה בתוצאות ›" : "השאלה הבאה ›"}
+          </button>
+          {!lastCorrect && !isLast && (
+            <button onClick={() => { setAnswered(false) }} style={{ width: "100%", background: "var(--surface)",
+              borderRadius: "var(--r-lg)", padding: 14, fontSize: 15, fontWeight: 600,
+              color: "var(--ink-soft)", border: "1.5px solid var(--line)", cursor: "pointer" }}>
+              נסה שוב
+            </button>
           )}
         </div>
       )}
