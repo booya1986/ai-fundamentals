@@ -58,10 +58,10 @@ function CopilotExercise({ ex, onBack, onComplete, alreadyDone }) {
           <div style={{ background: "#1C1C1E", borderRadius: "var(--r-lg)", padding: "16px 18px", boxShadow: "0 4px 16px rgba(0,0,0,0.2)", marginBottom: 12 }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
               <span style={{ fontSize: 12, fontWeight: 600, color: "#636366", textTransform: "uppercase", letterSpacing: "0.05em" }}>הפרומפט</span>
-              <button onClick={() => { navigator.clipboard?.writeText(ex.prompt) }} style={{
+              <button onClick={doCopy} style={{
                 background: "var(--accent)", borderRadius: 8, padding: "5px 12px",
                 fontSize: 12, fontWeight: 600, color: "white", border: "none", cursor: "pointer" }}>
-                העתק ✓
+                {copied ? "הועתק!" : "העתק ✓"}
               </button>
             </div>
             <div style={{ fontSize: 13, color: "#E5E5EA", lineHeight: 1.75, fontFamily: "var(--font-mono)", whiteSpace: "pre-wrap" }}>
