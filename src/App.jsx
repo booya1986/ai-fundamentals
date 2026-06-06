@@ -1,6 +1,6 @@
 import React from 'react'
 import { COURSE, MODULES, LESSON_CONTENT, QUIZZES, COPILOT, BADGES, INITIAL_PROGRESS } from './data.jsx'
-import { Icon, Button, Card, ProgressRing, Confetti, Medal, TabBar } from './ui.jsx'
+import { Icon, Button, Confetti, Medal, TabBar } from './ui.jsx'
 import { CourseMap, moduleState, unlockedSet } from './coursemap.jsx'
 import { LessonScreen, QuizRunner } from './lesson.jsx'
 import { CopilotExercise } from './copilot.jsx'
@@ -83,6 +83,10 @@ function ModuleCompleteOverlay({ celebrate, onClose }) {
     m6: "linear-gradient(135deg,#FF2D55,#FF375F)", m7: "linear-gradient(135deg,#5856D6,#6E6DD0)",
     m8: "linear-gradient(135deg,#FFCC00,#FF9500)",
   }
+  const MODULE_EMOJIS = {
+    m0: "🎯", m1: "🧠", m2: "🛠️", m3: "✍️",
+    m4: "⚡", m5: "🔬", m6: "🛡️", m7: "🤖", m8: "🎓",
+  }
   return (
     <div style={{ position: "fixed", inset: 0, zIndex: 5000, display: "grid", placeItems: "center", padding: 20,
       background: "rgba(0,0,0,0.5)", backdropFilter: "blur(8px)", animation: "fade-in .25s ease", overflowY: "auto" }}>
@@ -114,7 +118,7 @@ function ModuleCompleteOverlay({ celebrate, onClose }) {
             <div style={{ display: "flex", justifyContent: "center", marginBottom: 12 }}>
               <div style={{ width: 56, height: 56, borderRadius: 14, background: MODULE_GRADIENTS[nextMod.id] || MODULE_GRADIENTS.m1,
                 display: "flex", alignItems: "center", justifyContent: "center", fontSize: 28 }}>
-                {nextMod.glyph}
+                {MODULE_EMOJIS[nextMod.id] || "📚"}
               </div>
             </div>
             <div style={{ fontSize: 12, fontWeight: 700, color: "var(--accent)", marginBottom: 4 }}>המודול הבא נפתח!</div>
