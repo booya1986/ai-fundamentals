@@ -1,8 +1,7 @@
-// App.jsx — shell, navigation, progress, gamification. No tweak panel.
 import React from 'react'
 import { COURSE, MODULES, LESSON_CONTENT, QUIZZES, COPILOT, BADGES, INITIAL_PROGRESS } from './data.jsx'
-import { Icon, Button, Card, ProgressBar, ProgressRing, Pill, Confetti, Medal } from './ui.jsx'
-import { COURSE_MAPS, moduleState, unlockedSet, GlyphTile } from './coursemap.jsx'
+import { Icon, Button, Card, ProgressRing, Confetti, Medal, TabBar } from './ui.jsx'
+import { CourseMap, moduleState, unlockedSet } from './coursemap.jsx'
 import { LessonScreen, QuizRunner } from './lesson.jsx'
 import { CopilotExercise } from './copilot.jsx'
 import { FinalTaskScreen } from './final.jsx'
@@ -27,10 +26,6 @@ function computeMeta(progress) {
     completed: doneCount === total,
     scoreRaw: raw, scoreMax: max, scoreScaled: scaled, passed: scaled >= 0.7,
   }
-}
-function levelInfo(xp) {
-  const per = 300
-  return { level: Math.floor(xp / per) + 1, pct: Math.round(((xp % per) / per) * 100) }
 }
 function findLesson(mid, lid) {
   const mod = MODULES.find((m) => m.id === mid)
@@ -81,24 +76,33 @@ function getCopilot(mid, lid) {
 /* ---------- Module-complete celebration: earned badges + next-module unlock ---------- */
 function ModuleCompleteOverlay({ celebrate, onClose }) {
   const { badges = [], nextMod } = celebrate
+  const MODULE_GRADIENTS = {
+    m0: "linear-gradient(135deg,#636366,#48484A)", m1: "linear-gradient(135deg,#FF3B30,#FF6B6B)",
+    m2: "linear-gradient(135deg,#FF9500,#FFCC00)", m3: "linear-gradient(135deg,#AF52DE,#BF5AF2)",
+    m4: "linear-gradient(135deg,#34C759,#30D158)", m5: "linear-gradient(135deg,#0A84FF,#32ADE6)",
+    m6: "linear-gradient(135deg,#FF2D55,#FF375F)", m7: "linear-gradient(135deg,#5856D6,#6E6DD0)",
+    m8: "linear-gradient(135deg,#FFCC00,#FF9500)",
+  }
   return (
     <div style={{ position: "fixed", inset: 0, zIndex: 5000, display: "grid", placeItems: "center", padding: 20,
-      background: "oklch(0.2 0.02 270 / 0.55)", backdropFilter: "blur(7px)", animation: "fade-in .25s ease", overflowY: "auto" }}>
+      background: "rgba(0,0,0,0.5)", backdropFilter: "blur(8px)", animation: "fade-in .25s ease", overflowY: "auto" }}>
       <Confetti run={true} />
-      <div style={{ background: "var(--surface)", borderRadius: "var(--r-xl)", maxWidth: 440, width: "100%",
-        boxShadow: "var(--shadow-lg)", border: "1px solid var(--line)", padding: "34px 32px", textAlign: "center",
-        animation: "unlock-pop .5s cubic-bezier(.2,.8,.2,1)", margin: "auto" }}>
-        <div style={{ display: "inline-flex", alignItems: "center", gap: 7, fontFamily: "var(--font-head)", fontWeight: 800, color: "var(--success)", letterSpacing: ".06em", fontSize: 14, marginBottom: 4 }}><Icon name="star" size={16} fill /> כל הכבוד!</div>
-        <h2 style={{ fontSize: 25, marginBottom: badges.length ? 18 : 8 }}>סיימת את המודול</h2>
+      <div style={{ background: "var(--surface)", borderRadius: "var(--r-xl)", maxWidth: 380, width: "100%",
+        boxShadow: "var(--shadow-lg)", padding: "32px 24px", textAlign: "center",
+        animation: "unlock-pop .5s cubic-bezier(.2,.8,.2,1)" }}>
+        <div style={{ fontSize: 13, fontWeight: 700, color: "var(--success)", letterSpacing: ".06em", marginBottom: 4 }}>כל הכבוד!</div>
+        <h2 style={{ fontSize: 24, marginBottom: badges.length ? 20 : 8 }}>סיימת את המודול</h2>
 
         {badges.length > 0 && (
-          <div style={{ marginBottom: 22 }}>
-            <div style={{ fontSize: 13.5, fontWeight: 700, color: "var(--accent-ink)", marginBottom: 12 }}>הרווחת {badges.length > 1 ? "באדג'ים" : "באדג'"}:</div>
-            <div style={{ display: "flex", gap: 18, justifyContent: "center", flexWrap: "wrap" }}>
+          <div style={{ marginBottom: 20 }}>
+            <div style={{ fontSize: 13, fontWeight: 700, color: "var(--accent)", marginBottom: 12 }}>
+              הרווחת {badges.length > 1 ? "באדג'ים" : "באדג'"}:
+            </div>
+            <div style={{ display: "flex", gap: 16, justifyContent: "center", flexWrap: "wrap" }}>
               {badges.map((b) => (
-                <div key={b.id} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8, animation: "pop-in .5s cubic-bezier(.2,.8,.2,1)" }}>
-                  <Medal glyph={b.glyph} tone={b.tone} size={66} shine />
-                  <div style={{ fontFamily: "var(--font-head)", fontWeight: 700, fontSize: 13.5 }}>{b.name}</div>
+                <div key={b.id} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8, animation: "pop-in .5s ease" }}>
+                  <Medal glyph={b.glyph} tone={b.tone} size={60} shine />
+                  <div style={{ fontWeight: 700, fontSize: 13 }}>{b.name}</div>
                 </div>
               ))}
             </div>
@@ -106,183 +110,39 @@ function ModuleCompleteOverlay({ celebrate, onClose }) {
         )}
 
         {nextMod && (
-          <div style={{ borderTop: "1px solid var(--line)", paddingTop: 20, marginTop: 4 }}>
-            <div style={{ position: "relative", display: "grid", placeItems: "center", marginBottom: 12, height: 92 }}>
-              <span style={{ position: "absolute", width: 92, height: 92, borderRadius: "50%",
-                border: `3px solid oklch(0.7 0.18 ${nextMod.color})`, animation: "ring-ping 1s ease-out .2s" }} />
-              {/* lock bursts away, glyph revealed */}
-              <span style={{ position: "absolute", zIndex: 2, animation: "lock-burst .7s ease forwards" }}>
-                <Icon name="lock" size={34} style={{ color: "var(--muted)" }} />
-              </span>
-              <GlyphTile glyph={nextMod.glyph} tone={nextMod.color} state="active" size={80} />
+          <div style={{ borderTop: "1px solid var(--line)", paddingTop: 18, marginTop: 4 }}>
+            <div style={{ display: "flex", justifyContent: "center", marginBottom: 12 }}>
+              <div style={{ width: 56, height: 56, borderRadius: 14, background: MODULE_GRADIENTS[nextMod.id] || MODULE_GRADIENTS.m1,
+                display: "flex", alignItems: "center", justifyContent: "center", fontSize: 28 }}>
+                {nextMod.glyph}
+              </div>
             </div>
-            <div style={{ display: "inline-flex", alignItems: "center", gap: 7, fontFamily: "var(--font-head)", fontWeight: 700, color: "var(--accent)", letterSpacing: ".06em", fontSize: 13, marginBottom: 6 }}><Icon name="unlock" size={15} /> המודול הבא נפתח!</div>
-            <h3 style={{ fontSize: 20, marginBottom: 4 }}>{nextMod.title}</h3>
-            <p style={{ fontSize: 15, color: "var(--ink-soft)", margin: "0 0 8px", lineHeight: 1.5 }}>{nextMod.tagline}</p>
+            <div style={{ fontSize: 12, fontWeight: 700, color: "var(--accent)", marginBottom: 4 }}>המודול הבא נפתח!</div>
+            <h3 style={{ fontSize: 18, marginBottom: 4 }}>{nextMod.title}</h3>
+            <p style={{ fontSize: 14, color: "var(--muted)", margin: "0 0 8px", lineHeight: 1.5 }}>{nextMod.tagline}</p>
           </div>
         )}
 
-        <div style={{ marginTop: 22 }}>
-          <Button variant="primary" size="lg" iconEnd="arrowback" onClick={onClose}>{nextMod ? "קדימה למודול הבא!" : "המשך במסע"}</Button>
+        <div style={{ marginTop: 20 }}>
+          <Button variant="primary" size="lg" onClick={onClose}>
+            {nextMod ? "קדימה למודול הבא!" : "המשך במסע"}
+          </Button>
         </div>
       </div>
     </div>
   )
 }
 
-/* ---------- Theme switcher (3 modern design options) ---------- */
-const THEME_OPTIONS = [
-  { id: "material", name: "Material", sub: "נקי ואלגנטי", dot: "linear-gradient(135deg,#f3f3f6,#e53935 120%)" },
-  { id: "aurora", name: "Aurora", sub: "בהיר ורך", dot: "linear-gradient(135deg,#ffd6e0,#d9c7ff,#c7f5e6)" },
-  { id: "midnight", name: "Midnight", sub: "כהה מודרני", dot: "linear-gradient(135deg,#2a2350,#ff453a)" },
-  { id: "editorial", name: "Editorial", sub: "נקי וחד", dot: "linear-gradient(135deg,#ffffff,#5b5bd6)" },
-]
-function ThemeSwitcher({ theme, setTheme }) {
-  const [open, setOpen] = useState(false)
-  return (
-    <div style={{ position: "fixed", left: 16, bottom: 16, zIndex: 2000, display: "flex", flexDirection: "column", alignItems: "flex-start", gap: 10 }}>
-      {open && (
-        <div style={{ background: "var(--surface)", border: "1px solid var(--line)", borderRadius: "var(--r)", boxShadow: "var(--shadow-lg)", padding: 8, display: "grid", gap: 6, minWidth: 196, animation: "fade-up .2s ease" }}>
-          <div style={{ fontSize: 12, fontWeight: 700, color: "var(--muted)", padding: "4px 8px" }}>בחירת עיצוב</div>
-          {THEME_OPTIONS.map((t) => (
-            <button key={t.id} onClick={() => { setTheme(t.id); setOpen(false) }} style={{
-              display: "flex", alignItems: "center", gap: 11, padding: "9px 10px", borderRadius: "var(--r-sm)",
-              border: `1.5px solid ${theme === t.id ? "var(--accent)" : "transparent"}`,
-              background: theme === t.id ? "var(--accent-soft)" : "transparent", cursor: "pointer", textAlign: "start" }}>
-              <span style={{ width: 28, height: 28, borderRadius: 9, background: t.dot, flex: "none", boxShadow: "inset 0 0 0 1px rgba(0,0,0,.1)" }} />
-              <span>
-                <span style={{ display: "block", fontFamily: "var(--font-head)", fontWeight: 700, fontSize: 14, color: "var(--ink)" }}>{t.name}</span>
-                <span style={{ fontSize: 12, color: "var(--muted)" }}>{t.sub}</span>
-              </span>
-              {theme === t.id && <Icon name="check" size={16} stroke={3} style={{ color: "var(--accent)", marginInlineStart: "auto" }} />}
-            </button>
-          ))}
-        </div>
-      )}
-      <button onClick={() => setOpen((o) => !o)} title="בחירת עיצוב" aria-label="בחירת עיצוב" style={{
-        width: 50, height: 50, borderRadius: "50%", border: "none", background: "var(--accent)", color: "#fff",
-        boxShadow: "var(--shadow)", cursor: "pointer", display: "grid", placeItems: "center" }}>
-        <Icon name="sparkles" size={22} fill />
-      </button>
-    </div>
-  )
-}
-
-/* ---------- responsive helper ---------- */
-function useIsMobile(bp = 560) {
-  const [m, setM] = useState(typeof window !== "undefined" && window.matchMedia ? window.matchMedia(`(max-width:${bp}px)`).matches : false)
-  useEffect(() => {
-    if (typeof window === "undefined" || !window.matchMedia) return
-    const mq = window.matchMedia(`(max-width:${bp}px)`)
-    const on = () => setM(mq.matches)
-    on()
-    mq.addEventListener("change", on)
-    return () => mq.removeEventListener("change", on)
-  }, [bp])
-  return m
-}
-
-/* ---------- Top bar (responsive) ---------- */
-function TopBar({ progress, onAchievements, onHome }) {
-  const li = levelInfo(progress.xp)
-  const mobile = useIsMobile()
-  return (
-    <div style={{ position: "sticky", top: 0, zIndex: 100, background: "color-mix(in oklch, var(--bg), transparent 12%)",
-      backdropFilter: "blur(12px)", borderBottom: "1px solid var(--line)" }}>
-      <div style={{ maxWidth: "var(--maxw)", margin: "0 auto", padding: mobile ? "9px 12px" : "12px 22px", display: "flex", alignItems: "center", gap: mobile ? 7 : 12 }}>
-        <button onClick={onHome} title="למפת הקורס" style={{ background: "none", border: "none", cursor: "pointer", padding: 0, fontFamily: "var(--font-head)", fontWeight: 800, fontSize: mobile ? 15 : 18, color: "var(--ink)", flex: "none" }}>
-          מפת הקורס
-        </button>
-        <div style={{ flex: 1 }} />
-        {/* XP */}
-        <div title={`${progress.xp} XP`} style={{ display: "inline-flex", alignItems: "center", gap: 5, background: "var(--accent-soft)", color: "var(--accent-ink)",
-          padding: mobile ? "6px 10px" : "7px 13px", borderRadius: 999, fontFamily: "var(--font-head)", fontWeight: 700, fontSize: mobile ? 13.5 : 15.5, flex: "none" }}>
-          <Icon name="bolt" size={mobile ? 15 : 17} fill /> {progress.xp}{!mobile && " XP"}
-        </div>
-        {/* level */}
-        <div title={`רמה ${li.level} · ${li.pct}% לרמה הבאה`} style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "var(--surface)",
-          border: "1px solid var(--line)", borderRadius: 999, padding: mobile ? "3px" : "4px 13px 4px 5px", boxShadow: "var(--shadow-sm)", flex: "none" }}>
-          <ProgressRing value={li.pct} size={mobile ? 30 : 32} stroke={4}>
-            <span style={{ fontFamily: "var(--font-head)", fontWeight: 800, fontSize: 12.5, color: "var(--accent-ink)" }}>{li.level}</span>
-          </ProgressRing>
-          {!mobile && <span style={{ fontFamily: "var(--font-head)", fontWeight: 700, fontSize: 14.5, color: "var(--ink-soft)" }}>רמה {li.level}</span>}
-        </div>
-        {/* achievements */}
-        <button onClick={onAchievements} title="ההישגים שלי" style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "var(--accent-soft)",
-          color: "var(--accent-ink)", border: "1px solid transparent", borderRadius: 999, padding: mobile ? "8px" : "8px 15px", cursor: "pointer",
-          fontFamily: "var(--font-head)", fontWeight: 700, fontSize: 14.5, boxShadow: "var(--shadow-sm)", flex: "none" }}>
-          <Icon name="trophy" size={mobile ? 18 : 17} fill />{!mobile ? " ההישגים שלי" : ""}
-        </button>
-      </div>
-    </div>
-  )
-}
-
-/* ---------- Hero + layout switch ---------- */
-function Hero({ progress, onContinue, layout, setLayout }) {
-  const totalLessons = MODULES.reduce((a, m) => a + m.lessons.length, 0)
-  const doneCount = progress.done.length
-  const pct = Math.round((doneCount / totalLessons) * 100)
-  let next = null
-  for (const m of MODULES) { for (const l of m.lessons) { if (!progress.done.includes(`${m.id}/${l.id}`)) { next = { m, l }; break } } if (next) break }
-  const layouts = [{ k: "board", label: "לוח", icon: "grid" }, { k: "journey", label: "מסע", icon: "map" }]
-
-  return (
-    <div style={{ marginBottom: 30 }}>
-      <Card pad={0} style={{ overflow: "hidden", border: "1px solid var(--line)", boxShadow: "var(--shadow)" }}>
-        <div style={{ padding: "28px 28px 24px", background: "var(--surface)" }}>
-          <div style={{ fontFamily: "var(--font-head)", fontWeight: 600, fontSize: 13.5, color: "var(--accent)", marginBottom: 6, letterSpacing: ".02em" }}>שלום, נעים לראות אותך</div>
-          <h1 style={{ fontSize: 28, marginBottom: 8, lineHeight: 1.15, letterSpacing: "-0.02em", color: "var(--ink)" }}>{COURSE.title}</h1>
-          <p style={{ fontSize: 15.5, color: "var(--ink-soft)", margin: "0 0 20px", maxWidth: 480 }}>{COURSE.subtitle}</p>
-          <div style={{ marginBottom: 22 }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 8 }}>
-              <span style={{ fontFamily: "var(--font-head)", fontWeight: 700, fontSize: 13.5, color: "var(--accent)" }}>{pct}% הושלם</span>
-              <span style={{ fontSize: 13, color: "var(--muted)" }}>{doneCount}/{totalLessons} שיעורים</span>
-            </div>
-            <ProgressBar value={pct} height={8} />
-          </div>
-          {next && <Button variant="primary" size="lg" icon="arrowback" onClick={() => onContinue(next.m.id, next.l.id)}>
-            {doneCount > 0 ? "המשך מאיפה שעצרת" : "התחל את הקורס"}
-          </Button>}
-        </div>
-      </Card>
-
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 14, marginTop: 28, flexWrap: "wrap" }}>
-        <h2 style={{ fontSize: 22, letterSpacing: "-0.01em" }}>מפת הקורס</h2>
-        <div style={{ display: "inline-flex", background: "var(--bg-2)", border: "1px solid var(--line)", borderRadius: 999, padding: 4, gap: 2 }}>
-          {layouts.map((l) => {
-            const on = layout === l.k
-            return (
-              <button key={l.k} onClick={() => setLayout(l.k)} style={{
-                display: "inline-flex", alignItems: "center", gap: 7, padding: "9px 18px", borderRadius: 999, border: "none",
-                background: on ? "var(--accent)" : "transparent", color: on ? "#fff" : "var(--ink-soft)",
-                fontFamily: "var(--font-head)", fontWeight: 600, fontSize: 14.5, cursor: "pointer", transition: "all .15s ease",
-              }}>
-                <Icon name={l.icon} size={17} /> {l.label}
-              </button>
-            )
-          })}
-        </div>
-      </div>
-    </div>
-  )
-}
+const TAB_SCREENS = ["map", "achievements"]
 
 /* ---------- App ---------- */
 function App() {
   const [screen, setScreen] = useState("map")
-  const [layout, setLayout] = useState("board")
   const [progress, setProgress] = useState(loadProgress)
   const [current, setCurrent] = useState(null) // {mid, lid}
   const [result, setResult] = useState(null)
   const [newBadges, setNewBadges] = useState([])
   const [celebrate, setCelebrate] = useState(null)
-  const [theme, setTheme] = useState(() => { try { return localStorage.getItem("ai-course-theme") || "material" } catch (e) { return "material" } })
-
-  useEffect(() => {
-    document.documentElement.dataset.theme = theme
-    try { localStorage.setItem("ai-course-theme", theme) } catch (e) {}
-  }, [theme])
 
   useEffect(() => { scormSave(progress, computeMeta(progress)) }, [progress])
   useEffect(() => { window.scrollTo({ top: 0, behavior: "smooth" }) }, [screen])
@@ -302,7 +162,6 @@ function App() {
     else setScreen("lesson")
   }
 
-  // Pure: compute next progress + newly-unlocked module + gained badge ids.
   const applyDone = (prev, keys, extraXp = 0) => {
     const before = unlockedSet(MODULES, prev)
     const done = Array.from(new Set([...prev.done, ...keys]))
@@ -361,24 +220,22 @@ function App() {
 
   const closeResults = () => {
     setScreen("map")
-    if (window.__pendingCelebrate) { const c = window.__pendingCelebrate; window.__pendingCelebrate = null; setTimeout(() => setCelebrate(c), 250) }
+    if (window.__pendingCelebrate) {
+      const c = window.__pendingCelebrate; window.__pendingCelebrate = null
+      setTimeout(() => setCelebrate(c), 250)
+    }
   }
 
-  const MapComp = COURSE_MAPS[layout]
   const lessonContent = current ? getLessonContent(current.mid, current.lid) : null
   const sim = current ? findLesson(current.mid, current.lid).les.sim : null
   const SimComp = sim ? INTERACTIONS[sim] : null
+  const showTabBar = TAB_SCREENS.includes(screen)
 
   return (
     <>
-      <TopBar progress={progress} onAchievements={() => setScreen("achievements")} onHome={() => setScreen("map")} />
-
-      <main style={{ maxWidth: "var(--maxw)", margin: "0 auto", padding: "30px 22px 128px" }}>
+      <main style={{ maxWidth: "var(--maxw)", margin: "0 auto", paddingBottom: showTabBar ? 80 : 16 }}>
         {screen === "map" && (
-          <>
-            <Hero progress={progress} onContinue={openLesson} layout={layout} setLayout={setLayout} />
-            <MapComp modules={MODULES} progress={progress} onOpenLesson={openLesson} onLocked={() => {}} />
-          </>
+          <CourseMap modules={MODULES} progress={progress} onOpenLesson={openLesson} />
         )}
         {screen === "lesson" && lessonContent && (
           <LessonScreen content={lessonContent} alreadyDone={progress.done.includes(`${current.mid}/${current.lid}`)}
@@ -399,8 +256,9 @@ function App() {
           <QuizRunner quiz={getQuiz(current.mid)} onBack={() => setScreen("map")} onComplete={finishQuiz} />
         )}
         {screen === "results" && result && (
-          <ResultsScreen result={result} quiz={getQuiz(current ? current.mid : "m1")} newBadges={newBadges} courseComplete={result.courseComplete}
-            onBackToMap={closeResults} onRetry={() => setScreen("quiz")} onCertificate={() => setScreen("certificate")} />
+          <ResultsScreen result={result} quiz={getQuiz(current ? current.mid : "m1")} newBadges={newBadges}
+            courseComplete={result.courseComplete} onBackToMap={closeResults}
+            onRetry={() => setScreen("quiz")} onCertificate={() => setScreen("certificate")} />
         )}
         {screen === "achievements" && (
           <AchievementsView badges={BADGES} progress={progress} onBack={() => setScreen("map")} />
@@ -410,8 +268,8 @@ function App() {
         )}
       </main>
 
+      {showTabBar && <TabBar active={screen} onNavigate={setScreen} />}
       {celebrate && <ModuleCompleteOverlay celebrate={celebrate} onClose={() => setCelebrate(null)} />}
-      <ThemeSwitcher theme={theme} setTheme={setTheme} />
     </>
   )
 }
