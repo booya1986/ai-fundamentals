@@ -156,6 +156,16 @@ function App() {
     return () => { window.removeEventListener("beforeunload", onUnload); scormTerminate() }
   }, [])
 
+  const resetProgress = () => {
+    localStorage.removeItem('ai-course-progress-v1')
+    setProgress(JSON.parse(JSON.stringify(INITIAL_PROGRESS)))
+    setScreen('map')
+    setCurrent(null)
+    setResult(null)
+    setNewBadges([])
+    setCelebrate(null)
+  }
+
   const openLesson = (mid, lid) => {
     const { les } = findLesson(mid, lid)
     setCurrent({ mid, lid })
@@ -262,7 +272,18 @@ function App() {
       </div>
       <main style={{ position: "relative", zIndex: 1, maxWidth: "var(--maxw)", margin: "0 auto", paddingBottom: showTabBar ? 80 : 16 }}>
         {screen === "map" && (
-          <CourseMap modules={MODULES} progress={progress} onOpenLesson={openLesson} />
+          <>
+            <CourseMap modules={MODULES} progress={progress} onOpenLesson={openLesson} />
+            <div style={{ textAlign: "center", paddingTop: 8, paddingBottom: 4 }}>
+              <button onClick={resetProgress} style={{
+                background: "none", border: "1px solid #DDD", color: "#BBBBBB",
+                fontSize: 11, padding: "4px 12px", borderRadius: 6,
+                cursor: "pointer", fontFamily: "inherit", letterSpacing: "0.3px",
+              }}>
+                ↺ איפוס התקדמות
+              </button>
+            </div>
+          </>
         )}
         {screen === "lesson" && lessonContent && (
           <LessonScreen content={lessonContent} alreadyDone={progress.done.includes(`${current.mid}/${current.lid}`)}
