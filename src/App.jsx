@@ -272,18 +272,18 @@ function App() {
       </div>
       <main style={{ position: "relative", zIndex: 1, maxWidth: "var(--maxw)", margin: "0 auto", paddingBottom: showTabBar ? 80 : 16 }}>
         {screen === "map" && (
-          <>
-            <CourseMap modules={MODULES} progress={progress} onOpenLesson={openLesson} />
-            <div style={{ textAlign: "center", paddingTop: 8, paddingBottom: 4 }}>
-              <button onClick={resetProgress} style={{
-                background: "none", border: "1px solid #DDD", color: "#BBBBBB",
-                fontSize: 11, padding: "4px 12px", borderRadius: 6,
-                cursor: "pointer", fontFamily: "inherit", letterSpacing: "0.3px",
-              }}>
-                ↺ איפוס התקדמות
-              </button>
-            </div>
-          </>
+          <CourseMap modules={MODULES} progress={progress} onOpenLesson={openLesson} />
+        )}
+        {screen === "map" && (
+          <button onClick={resetProgress} title="איפוס התקדמות" style={{
+            position: "fixed", bottom: showTabBar ? 90 : 16, left: 16,
+            zIndex: 50, background: "rgba(255,255,255,0.85)", backdropFilter: "blur(6px)",
+            border: "1px solid #DDD", color: "#AAA", fontSize: 11,
+            padding: "5px 10px", borderRadius: 8, cursor: "pointer",
+            fontFamily: "inherit", boxShadow: "0 1px 4px rgba(0,0,0,0.08)",
+          }}>
+            ↺ איפוס
+          </button>
         )}
         {screen === "lesson" && lessonContent && (
           <LessonScreen content={lessonContent} alreadyDone={progress.done.includes(`${current.mid}/${current.lid}`)}
