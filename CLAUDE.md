@@ -18,7 +18,9 @@ There is no test suite. Verify changes by running `npm run dev` and exercising t
 ## Architecture
 
 ### Screen routing
-All navigation lives in `App.jsx` as a single `screen` state string (`"map"`, `"lesson"`, `"quiz"`, `"copilot"`, `"interactive"`, `"final"`, `"results"`, `"achievements"`, `"certificate"`). There is no router library. A bottom `TabBar` (from `ui.jsx`) is visible only on `"map"` and `"achievements"` screens; all other screens hide it. There is no TopBar or Hero component.
+All navigation lives in `App.jsx` as a single `screen` state string (`"map"`, `"lesson"`, `"quiz"`, `"copilot"`, `"interactive"`, `"final"`, `"results"`, `"achievements"`, `"certificate"`, `"diagnostic-gate"`). There is no router library. A bottom `TabBar` (from `ui.jsx`) is visible only on `"map"` and `"achievements"` screens; all other screens hide it. There is no TopBar or Hero component.
+
+**`diagnostic-gate` screen** — shown after M0's video lesson (m0/l1) completes, both on first play and revision. Renders `DiagnosticGate` (defined inline in `App.jsx`): explains the quiz purpose, recommends taking it, offers Skip → map or "לביצוע" → opens m0/l2 quiz. If user skips, M0 is considered complete (the quiz is optional).
 
 ### Content data model
 Course content is split across two locations:
@@ -31,11 +33,20 @@ To add or edit content for M2–M7, edit only the corresponding `src/content/m*.
 ### Lesson kinds and which component renders them
 | `kind` | Component | Notes |
 |--------|-----------|-------|
-| `reading` / `video` / `diagnostic` | `LessonScreen` (lesson.jsx) | |
+| `reading` / `video` | `LessonScreen` (lesson.jsx) | |
 | `quiz` | `QuizRunner` (lesson.jsx) | |
 | `copilot` | `CopilotExercise` (copilot.jsx) | |
 | `interactive` | `INTERACTIONS[les.sim]` (interactions.jsx) | `les.sim` is the sim key |
 | `final` | `FinalTaskScreen` (final.jsx) | |
+
+### Optional lessons
+A lesson object can carry `optional: true`. Optional lessons are **excluded** from all completion checks — they never block module-done status, module unlock, badge awards, or course completion. Every place that computes completion must filter: `mod.lessons.filter(l => !l.optional)`.
+
+Files that contain this filter: `moduleState()` and `unlockedSet()` in `coursemap.jsx`; `modStats()` in `coursemap.jsx`; `applyDone()`, `isCourseDone()`, `completeSimpleLesson()`, and `finishQuiz()` in `App.jsx`.
+
+The optional badge (`⭐ בונוס XP`) is rendered next to the lesson title in BoardMap and JourneyMap lesson lists when the lesson is not yet done.
+
+**Current optional lesson:** M0 / l2 — "שאלון אבחון" (12-question diagnostic quiz, `QUIZZES["m0"]`, 20 XP per question). Accessed via the `diagnostic-gate` screen after the M0 video.
 
 ### UI primitives
 All shared components (`Icon`, `Button`, `Card`, `ProgressBar`, `ProgressRing`, `Medal`, etc.) are in `src/ui.jsx`. Icons are all from `lucide-react` — use the `<Icon name="...">` wrapper, never import Lucide components directly in other files.
