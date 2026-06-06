@@ -130,6 +130,43 @@ function ModuleCompleteOverlay({ celebrate, onClose }) {
   )
 }
 
+/* ---------- Theme switcher (3 modern design options) ---------- */
+const THEME_OPTIONS = [
+  { id: "aurora", name: "Aurora", sub: "בהיר ורך", dot: "linear-gradient(135deg,#ffd6e0,#d9c7ff,#c7f5e6)" },
+  { id: "midnight", name: "Midnight", sub: "כהה מודרני", dot: "linear-gradient(135deg,#2a2350,#ff453a)" },
+  { id: "editorial", name: "Editorial", sub: "נקי וחד", dot: "linear-gradient(135deg,#ffffff,#5b5bd6)" },
+]
+function ThemeSwitcher({ theme, setTheme }) {
+  const [open, setOpen] = useState(false)
+  return (
+    <div style={{ position: "fixed", left: 16, bottom: 16, zIndex: 2000, display: "flex", flexDirection: "column", alignItems: "flex-start", gap: 10 }}>
+      {open && (
+        <div style={{ background: "var(--surface)", border: "1px solid var(--line)", borderRadius: "var(--r)", boxShadow: "var(--shadow-lg)", padding: 8, display: "grid", gap: 6, minWidth: 196, animation: "fade-up .2s ease" }}>
+          <div style={{ fontSize: 12, fontWeight: 700, color: "var(--muted)", padding: "4px 8px" }}>בחירת עיצוב</div>
+          {THEME_OPTIONS.map((t) => (
+            <button key={t.id} onClick={() => { setTheme(t.id); setOpen(false) }} style={{
+              display: "flex", alignItems: "center", gap: 11, padding: "9px 10px", borderRadius: "var(--r-sm)",
+              border: `1.5px solid ${theme === t.id ? "var(--accent)" : "transparent"}`,
+              background: theme === t.id ? "var(--accent-soft)" : "transparent", cursor: "pointer", textAlign: "start" }}>
+              <span style={{ width: 28, height: 28, borderRadius: 9, background: t.dot, flex: "none", boxShadow: "inset 0 0 0 1px rgba(0,0,0,.1)" }} />
+              <span>
+                <span style={{ display: "block", fontFamily: "var(--font-head)", fontWeight: 700, fontSize: 14, color: "var(--ink)" }}>{t.name}</span>
+                <span style={{ fontSize: 12, color: "var(--muted)" }}>{t.sub}</span>
+              </span>
+              {theme === t.id && <Icon name="check" size={16} stroke={3} style={{ color: "var(--accent)", marginInlineStart: "auto" }} />}
+            </button>
+          ))}
+        </div>
+      )}
+      <button onClick={() => setOpen((o) => !o)} title="בחירת עיצוב" aria-label="בחירת עיצוב" style={{
+        width: 50, height: 50, borderRadius: "50%", border: "none", background: "var(--accent)", color: "#fff",
+        boxShadow: "var(--shadow)", cursor: "pointer", display: "grid", placeItems: "center" }}>
+        <Icon name="sparkles" size={22} fill />
+      </button>
+    </div>
+  )
+}
+
 /* ---------- responsive helper ---------- */
 function useIsMobile(bp = 560) {
   const [m, setM] = useState(typeof window !== "undefined" && window.matchMedia ? window.matchMedia(`(max-width:${bp}px)`).matches : false)
@@ -188,13 +225,13 @@ function Hero({ progress, onContinue, layout, setLayout }) {
   let next = null
   for (const m of MODULES) { for (const l of m.lessons) { if (!progress.done.includes(`${m.id}/${l.id}`)) { next = { m, l }; break } } if (next) break }
   const layouts = [{ k: "board", label: "לוח", icon: "grid" }, { k: "journey", label: "מסע", icon: "map" }]
-  const L = { ink: "oklch(0.25 0.012 285)", soft: "oklch(0.46 0.012 285)", muted: "oklch(0.58 0.01 285)" }
+  const L = { ink: "var(--ink)", soft: "var(--ink-soft)", muted: "var(--muted)" }
 
   return (
     <div style={{ marginBottom: 30 }}>
       <Card pad={0} style={{ overflow: "hidden", border: "1px solid var(--line)", boxShadow: "var(--shadow)" }}>
         <div style={{ display: "flex", flexWrap: "wrap", gap: 30, padding: "34px", alignItems: "center",
-          background: "linear-gradient(125deg, oklch(0.985 0.006 32), oklch(0.95 0.03 32))" }}>
+          background: "linear-gradient(125deg, var(--surface-2), var(--accent-soft))" }}>
           <div style={{ flex: "1 1 320px" }}>
             <div style={{ fontFamily: "var(--font-head)", fontWeight: 600, fontSize: 14.5, color: "var(--accent)", marginBottom: 8 }}>שלום, נעים לראות אותך</div>
             <h1 style={{ fontSize: 33, marginBottom: 10, lineHeight: 1.15, letterSpacing: "-0.02em", color: L.ink }}>{COURSE.title}</h1>
@@ -204,7 +241,7 @@ function Hero({ progress, onContinue, layout, setLayout }) {
             </Button>}
           </div>
           <div style={{ flex: "0 0 auto", display: "grid", placeItems: "center" }}>
-            <ProgressRing value={pct} size={142} stroke={13} from="var(--accent)" to="var(--accent-deep)" track="oklch(0.9 0.008 32)">
+            <ProgressRing value={pct} size={142} stroke={13} from="var(--accent)" to="var(--accent-deep)" track="var(--line)">
               <div style={{ textAlign: "center" }}>
                 <div style={{ fontFamily: "var(--font-head)", fontWeight: 800, fontSize: 36, lineHeight: 1, color: L.ink }}>{pct}%</div>
                 <div style={{ fontSize: 13, color: L.muted, fontWeight: 600 }}>{doneCount}/{totalLessons} שיעורים</div>
@@ -244,6 +281,12 @@ function App() {
   const [result, setResult] = useState(null)
   const [newBadges, setNewBadges] = useState([])
   const [celebrate, setCelebrate] = useState(null)
+  const [theme, setTheme] = useState(() => { try { return localStorage.getItem("ai-course-theme") || "aurora" } catch (e) { return "aurora" } })
+
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme
+    try { localStorage.setItem("ai-course-theme", theme) } catch (e) {}
+  }, [theme])
 
   useEffect(() => { scormSave(progress, computeMeta(progress)) }, [progress])
   useEffect(() => { window.scrollTo({ top: 0, behavior: "smooth" }) }, [screen])
@@ -372,6 +415,7 @@ function App() {
       </main>
 
       {celebrate && <ModuleCompleteOverlay celebrate={celebrate} onClose={() => setCelebrate(null)} />}
+      <ThemeSwitcher theme={theme} setTheme={setTheme} />
     </>
   )
 }

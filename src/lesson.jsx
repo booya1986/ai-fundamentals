@@ -37,7 +37,7 @@ function VideoPlayer({ src, poster, label, onEnded }) {
 /* ---------- Lesson content screen ---------- */
 function LessonScreen({ content, onBack, onComplete, alreadyDone }) {
   const [showTranscript, setShowTranscript] = useState(false)
-  const isReading = content.kind === "reading"
+  const isReading = content.kind === "reading" || content.kind === "diagnostic"
   return (
     <div style={{ maxWidth: 800, margin: "0 auto", animation: "fade-up .35s ease" }}>
       <button onClick={onBack} style={{ display: "inline-flex", alignItems: "center", gap: 7, background: "none", border: "none",

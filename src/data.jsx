@@ -297,10 +297,11 @@ const BADGES = [
 
 // Demo starting state: M0 complete → M1 active, M2–M8 locked (shows the unlock flow).
 const INITIAL_PROGRESS = {
-  xp: 240,
-  level: 2,
-  done: ["m0/l1", "m0/l2"],
-  badges: ["first-step"],
+  xp: 0,
+  level: 1,
+  done: [],
+  badges: [],
+  scores: {},
 }
 
 // merge per-module content authored under src/content/

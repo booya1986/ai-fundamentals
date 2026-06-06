@@ -10,6 +10,7 @@ import '@fontsource/jetbrains-mono/500.css'
 import '@fontsource/jetbrains-mono/600.css'
 import './styles/tokens.css'
 import './styles/aurora.css'
+import './styles/themes.css'
 import App from './App.jsx'
 
 // No StrictMode: it double-invokes effects in dev, which would call SCORM
