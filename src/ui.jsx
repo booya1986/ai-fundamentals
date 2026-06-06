@@ -27,37 +27,31 @@ function Icon({ name, size = 22, stroke = 2, fill = false, style, className }) {
 }
 
 /* ---------- Button ---------- */
-function Button({ children, variant = "primary", size = "md", icon, iconEnd, full, disabled, onClick, style }) {
+function Button({ children, variant = "primary", size = "md", icon, iconEnd, onClick, style, disabled }) {
+  const base = {
+    display: "inline-flex", alignItems: "center", justifyContent: "center",
+    gap: 8, border: "none", cursor: disabled ? "not-allowed" : "pointer",
+    fontFamily: "var(--font-head)", fontWeight: 600, borderRadius: "var(--r)",
+    transition: "opacity .15s", opacity: disabled ? 0.45 : 1, ...style,
+  }
   const sizes = {
-    sm: { padding: "8px 14px", fontSize: 15, gap: 7 },
-    md: { padding: "12px 20px", fontSize: 16.5, gap: 9 },
-    lg: { padding: "15px 28px", fontSize: 18, gap: 10 },
+    sm: { fontSize: 13, padding: "8px 14px" },
+    md: { fontSize: 15, padding: "13px 20px" },
+    lg: { fontSize: 16, padding: "16px 20px", borderRadius: "var(--r-lg)", width: "100%" },
   }
   const variants = {
-    primary: { background: "var(--accent)", color: "#fff", boxShadow: "0 6px 16px color-mix(in oklch, var(--accent), transparent 70%)", border: "1px solid transparent" },
-    deep: { background: "var(--ink)", color: "var(--bg)", border: "1px solid transparent" },
-    soft: { background: "var(--accent-soft)", color: "var(--accent-ink)", border: "1px solid transparent" },
-    ghost: { background: "transparent", color: "var(--ink-soft)", border: "1px solid var(--line)" },
-    gold: { background: "linear-gradient(135deg, var(--gold), var(--gold-deep))", color: "oklch(0.28 0.06 75)", border: "1px solid transparent", boxShadow: "0 6px 16px oklch(0.7 0.13 80 / 0.35)" },
+    primary: { background: "var(--accent)", color: "#fff" },
+    deep:    { background: "var(--accent-deep)", color: "#fff" },
+    soft:    { background: "var(--accent-soft)", color: "var(--accent)" },
+    ghost:   { background: "var(--surface)", color: "var(--ink-soft)", border: "1.5px solid var(--line)" },
+    gold:    { background: "var(--gold)", color: "#000" },
+    success: { background: "var(--success-soft)", color: "var(--success)" },
   }
-  const [h, setH] = useState(false)
   return (
-    <button onClick={disabled ? undefined : onClick} disabled={disabled}
-      onMouseEnter={() => setH(true)} onMouseLeave={() => setH(false)}
-      style={{
-        display: "inline-flex", alignItems: "center", justifyContent: "center",
-        gap: sizes[size].gap, fontFamily: "var(--font-head)", fontWeight: 600,
-        fontSize: sizes[size].fontSize, padding: sizes[size].padding,
-        borderRadius: 999, transition: "transform .12s ease, box-shadow .2s ease, filter .2s ease",
-        width: full ? "100%" : "auto", opacity: disabled ? 0.45 : 1,
-        transform: h && !disabled ? "translateY(-1px)" : "none",
-        filter: h && !disabled ? "brightness(1.04)" : "none",
-        cursor: disabled ? "not-allowed" : "pointer",
-        ...variants[variant], ...style,
-      }}>
-      {icon && <Icon name={icon} size={size === "lg" ? 21 : 19} />}
+    <button onClick={disabled ? undefined : onClick} style={{ ...base, ...sizes[size], ...variants[variant] }}>
+      {icon && <Icon name={icon} size={size === "lg" ? 18 : 16} />}
       {children}
-      {iconEnd && <Icon name={iconEnd} size={size === "lg" ? 21 : 19} />}
+      {iconEnd && <Icon name={iconEnd} size={size === "lg" ? 18 : 16} />}
     </button>
   )
 }
@@ -109,18 +103,15 @@ function ProgressRing({ value, size = 56, stroke = 6, tone = "var(--accent)", fr
 }
 
 /* ---------- Card ---------- */
-function Card({ children, pad = 22, style, hover, onClick }) {
-  const [h, setH] = useState(false)
+function Card({ children, style, pad = 16, hover, onClick }) {
   return (
     <div onClick={onClick}
-      onMouseEnter={() => setH(true)} onMouseLeave={() => setH(false)}
       style={{
-        background: "var(--surface)", borderRadius: "var(--r-lg)", padding: pad,
-        border: `1px solid ${hover && h ? "color-mix(in oklch, var(--accent), transparent 55%)" : "var(--line)"}`,
-        boxShadow: hover && h ? "0 22px 48px oklch(0.4 0.05 285 / 0.18), 0 0 0 1px color-mix(in oklch, var(--accent), transparent 70%), 0 0 26px color-mix(in oklch, var(--accent), transparent 86%)" : "var(--shadow-sm)",
-        transition: "box-shadow .3s ease, transform .3s cubic-bezier(.2,.8,.2,1), border-color .3s ease",
-        transform: hover && h ? "translateY(-7px) scale(1.012)" : "none",
-        cursor: onClick ? "pointer" : "default", ...style,
+        background: "var(--surface)", borderRadius: "var(--r-lg)",
+        boxShadow: "var(--shadow)", padding: pad,
+        cursor: onClick || hover ? "pointer" : undefined,
+        transition: hover ? "opacity .15s" : undefined,
+        ...style,
       }}>
       {children}
     </div>
@@ -129,52 +120,38 @@ function Card({ children, pad = 22, style, hover, onClick }) {
 
 /* ---------- Medal / Badge disc ---------- */
 const BadgeCtx = React.createContext("gradient")
-function Medal({ glyph, tone = "274", size = 72, locked = false, shine = false }) {
-  const variant = React.useContext(BadgeCtx)
-  const h2 = (Number(tone) + 32) % 360
-  const c = `oklch(0.66 0.19 ${tone})`
-  const glyphFill = ["star", "flame", "fire", "spark", "check"].includes(glyph)
-
-  if (locked) {
-    return (
-      <div style={{ position: "relative", width: size, height: size, flex: "none" }}>
-        <div style={{ width: size, height: size, borderRadius: "50%", display: "grid", placeItems: "center",
-          background: "var(--bg-2)", color: "var(--muted)", border: "2px solid var(--line)" }}>
-          <Icon name="lock" size={size * 0.4} stroke={2} style={{ color: "var(--muted)" }} />
-        </div>
-      </div>
-    )
+function Medal({ glyph, tone, size = 56, locked, shine, style }) {
+  const GLYPHS = {
+    rocket: "🚀", star: "⭐", sparkles: "✨", shield: "🛡️",
+    trophy: "🏆", flame: "🔥", cap: "🎓", bolt: "⚡",
   }
-
-  let box, gloss = false
-  if (variant === "flat") {
-    box = { background: c, color: "#fff", border: "none", boxShadow: `0 8px 20px oklch(0.6 0.2 ${tone} / 0.35)` }
-  } else if (variant === "outline") {
-    box = { background: `oklch(0.95 0.05 ${tone})`, color: `oklch(0.45 0.16 ${tone})`, border: `2.5px solid ${c}`, boxShadow: "none" }
-  } else {
-    box = {
-      background: `linear-gradient(155deg, oklch(0.82 0.16 ${tone}) 0%, oklch(0.62 0.21 ${tone}) 45%, oklch(0.5 0.2 ${h2}) 100%)`,
-      color: "#fff", border: "none",
-      boxShadow: `0 12px 30px oklch(0.6 0.2 ${tone} / 0.45), inset 0 2px 3px oklch(1 0 0 / 0.55), inset 0 -8px 16px oklch(0.3 0.12 ${h2} / 0.6)`,
-    }
-    gloss = true
+  const GRADIENTS = {
+    "100": "linear-gradient(135deg,#FF3B30,#FF6B6B)",
+    "200": "linear-gradient(135deg,#FF9500,#FFCC00)",
+    "300": "linear-gradient(135deg,#AF52DE,#BF5AF2)",
+    "85":  "linear-gradient(135deg,#34C759,#30D158)",
+    "250": "linear-gradient(135deg,#0A84FF,#32ADE6)",
+    "150": "linear-gradient(135deg,#FF2D55,#FF375F)",
   }
+  const bg = locked ? "#E5E5EA" : (GRADIENTS[String(tone)] || "linear-gradient(135deg,#FF9500,#FFCC00)")
+  const radius = Math.round(size * 0.26) // squircle ratio
   return (
-    <div style={{ position: "relative", width: size, height: size, flex: "none" }}>
-      <div style={{ width: size, height: size, borderRadius: "50%", display: "grid", placeItems: "center",
-        overflow: "hidden", position: "relative", ...box }}>
-        <Icon name={glyph} size={size * 0.46} stroke={2.4} fill={glyphFill && variant !== "outline"}
-          style={{ filter: gloss ? "drop-shadow(0 1px 2px oklch(0 0 0 / 0.3))" : "none", zIndex: 2 }} />
-        {gloss && (
-          <span style={{ position: "absolute", top: "-14%", left: "8%", right: "8%", height: "52%", borderRadius: "50%",
-            background: "linear-gradient(oklch(1 0 0 / 0.5), oklch(1 0 0 / 0))", pointerEvents: "none" }} />
-        )}
-        {shine && gloss && (
-          <span style={{ position: "absolute", top: 0, bottom: 0, width: "45%",
-            background: "linear-gradient(100deg, transparent, oklch(1 0 0 / 0.45), transparent)",
-            animation: "badge-shine 2.6s ease-in-out infinite" }} />
-        )}
-      </div>
+    <div style={{
+      width: size, height: size, borderRadius: radius,
+      background: bg, display: "flex", alignItems: "center", justifyContent: "center",
+      fontSize: size * 0.46, flexShrink: 0,
+      boxShadow: locked ? "none" : `0 4px 12px rgba(0,0,0,0.15)`,
+      filter: locked ? "grayscale(1)" : "none",
+      position: "relative", overflow: "hidden",
+      ...style,
+    }}>
+      {shine && !locked && (
+        <span style={{
+          position: "absolute", inset: 0, background: "linear-gradient(105deg,transparent 35%,rgba(255,255,255,0.4) 50%,transparent 65%)",
+          animation: "badge-shine 2.4s ease-in-out infinite",
+        }} />
+      )}
+      <span style={{ position: "relative" }}>{locked ? "🔒" : (GLYPHS[glyph] || "⭐")}</span>
     </div>
   )
 }
@@ -250,4 +227,44 @@ function Placeholder({ label, h = 200, style }) {
   )
 }
 
-export { Icon, Button, ProgressBar, ProgressRing, Card, Medal, BadgeCtx, Pill, Confetti, Modal, Placeholder }
+/* ---------- TabBar ---------- */
+function TabBar({ active, onNavigate }) {
+  const tabs = [
+    { id: "map",          label: "קורס",   emoji: "🏠" },
+    { id: "achievements", label: "הישגים", emoji: "🏆" },
+  ]
+  return (
+    <div style={{
+      position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 200,
+      background: "rgba(242,242,247,0.92)",
+      borderTop: "0.5px solid var(--line-strong)",
+      backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)",
+      padding: "8px 0 env(safe-area-inset-bottom, 16px)",
+      display: "flex", justifyContent: "space-around",
+    }}>
+      {tabs.map((t) => {
+        const isActive = active === t.id
+        return (
+          <button key={t.id} onClick={() => onNavigate(t.id)} style={{
+            background: "none", border: "none", cursor: "pointer",
+            display: "flex", flexDirection: "column", alignItems: "center", gap: 3,
+            padding: "4px 24px",
+          }}>
+            <span style={{ fontSize: 22, filter: isActive ? "none" : "grayscale(1)", opacity: isActive ? 1 : 0.45 }}>
+              {t.emoji}
+            </span>
+            <span style={{
+              fontSize: 10, fontWeight: 600,
+              color: isActive ? "var(--accent)" : "var(--muted)",
+              fontFamily: "var(--font-head)",
+            }}>
+              {t.label}
+            </span>
+          </button>
+        )
+      })}
+    </div>
+  )
+}
+
+export { Icon, Button, ProgressBar, ProgressRing, Card, Medal, BadgeCtx, Pill, Confetti, Modal, Placeholder, TabBar }
