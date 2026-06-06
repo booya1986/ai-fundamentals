@@ -245,8 +245,8 @@ function ScenarioExercise({ q, onResult }) {
   }
   const correctIdx = q.options.findIndex((o) => o.verdict === q.correctVerdict)
   return (
-    <div>
-      <div style={{ display: "grid", gap: 12, marginBottom: 20 }}>
+    <div style={{ padding: "16px" }}>
+      <div style={{ display: "grid", gap: 12, marginBottom: 16 }}>
         {q.options.map((opt, i) => {
           const isPicked = picked === i
           const reveal = done
@@ -276,7 +276,7 @@ function ScenarioExercise({ q, onResult }) {
       </div>
       {done
         ? <Feedback correct={q.options[picked].verdict === q.correctVerdict} text={q.options[picked].feedback} />
-        : <Button variant="primary" disabled={picked == null} onClick={submit}>בדיקה</Button>}
+        : <Button variant="primary" disabled={picked == null} onClick={submit} style={{ width: "100%" }}>בדיקה</Button>}
     </div>
   )
 }

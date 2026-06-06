@@ -26,7 +26,7 @@ const MODULES = [
     lessons: [
       { id: "l1", title: "שאלון אבחון", min: 5, kind: "diagnostic" },
       { id: "l2", title: "מה לומדים ואיך מתקדמים", min: 4, kind: "video", media: "media/m0-intro.mp4" },
-      { id: "l3", title: "שאלון אבחון — עד 240 XP", min: 10, kind: "quiz", optional: true },
+      { id: "l3", title: "שאלון אבחון", min: 10, kind: "quiz", optional: true },
     ],
   },
   {
