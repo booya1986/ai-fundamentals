@@ -23,87 +23,106 @@ function CopilotExercise({ ex, onBack, onComplete, alreadyDone }) {
   const [refl, setRefl] = useState({})
   const doCopy = () => { copyText(ex.prompt); setCopied(true); setTimeout(() => setCopied(false), 1800) }
 
+  const canSubmit = true
+
   return (
-    <div style={{ maxWidth: 760, margin: "0 auto", animation: "fade-up .35s ease" }}>
-      <button onClick={onBack} style={{ display: "inline-flex", alignItems: "center", gap: 7, background: "none", border: "none",
-        color: "var(--muted)", fontFamily: "var(--font-head)", fontWeight: 600, fontSize: 15, cursor: "pointer", marginBottom: 16, padding: 0 }}>
-        <Icon name="arrow" size={18} /> חזרה למפת הקורס
-      </button>
-      <div style={{ fontSize: 13.5, fontWeight: 700, color: "var(--accent)", letterSpacing: ".03em", marginBottom: 6 }}>{ex.module} · יישום</div>
-      <h1 style={{ fontSize: 30, marginBottom: 10 }}>{ex.title}</h1>
-      <p style={{ fontSize: 17, lineHeight: 1.7, color: "var(--ink-soft)", margin: "0 0 20px" }}>{ex.intro}</p>
+    <div style={{ animation: "fade-up .3s ease", paddingBottom: 90 }}>
+      <div style={{ height: 14 }} />
 
-      {/* security banner */}
-      <div style={{ display: "flex", gap: 11, alignItems: "flex-start", padding: "13px 16px", borderRadius: "var(--r)",
-        background: "color-mix(in oklch, var(--gold), white 82%)", border: "1px solid color-mix(in oklch, var(--gold-deep), transparent 55%)", marginBottom: 20 }}>
-        <div style={{ flex: "none", width: 24, height: 24, borderRadius: "50%", background: "var(--gold-deep)", color: "#fff", display: "grid", placeItems: "center", fontWeight: 800, fontSize: 14 }}>!</div>
-        <div style={{ fontSize: 14.5, color: "oklch(0.42 0.06 75)", fontWeight: 600, lineHeight: 1.5 }}>{ex.security}</div>
-      </div>
-
-      {/* prompt block */}
-      <Card pad={0} style={{ overflow: "hidden", marginBottom: 18 }}>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "11px 16px", borderBottom: "1px solid var(--line)", background: "var(--bg-2)" }}>
-          <span style={{ fontFamily: "var(--font-head)", fontWeight: 700, fontSize: 14, color: "var(--ink-soft)", display: "inline-flex", alignItems: "center", gap: 7 }}>
-            <Icon name="terminal" size={16} /> הפרומפט להעתקה
-          </span>
-          <Button variant={copied ? "soft" : "primary"} size="sm" icon={copied ? "check" : "copy"} onClick={doCopy}>
-            {copied ? "הועתק!" : "העתק פרומפט"}
-          </Button>
+      {/* Nav */}
+      <div style={{ padding: "4px 18px 8px", display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
+        <div>
+          <div style={{ fontSize: 12, color: "var(--muted)", marginBottom: 2 }}>תרגול · Copilot</div>
+          <div style={{ fontSize: 24, fontWeight: 700, color: "var(--ink)", letterSpacing: "-0.3px" }}>נסה בעצמך</div>
         </div>
-        <pre style={{ margin: 0, padding: "16px 18px", whiteSpace: "pre-wrap", wordBreak: "break-word",
-          fontFamily: "var(--font-mono)", fontSize: 14.5, lineHeight: 1.7, color: "var(--ink)", direction: "rtl", textAlign: "right" }}>{ex.prompt}</pre>
-      </Card>
-
-      {/* tool launch */}
-      <div style={{ display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap", marginBottom: 22 }}>
-        <a href={ex.tool.url} target="_blank" rel="noopener noreferrer" style={{ textDecoration: "none" }}>
-          <Button variant="primary" size="lg" icon="link">פתח את {ex.tool.name}</Button>
-        </a>
-        {ex.tool.alt && ex.tool.alt.map((a) => (
-          <a key={a.name} href={a.url} target="_blank" rel="noopener noreferrer"
-            style={{ fontSize: 14.5, color: "var(--muted)", textDecoration: "none", borderBottom: "1px dashed var(--line)" }}>
-            או {a.name}
-          </a>
-        ))}
+        <button onClick={onBack} style={{ background: "none", border: "none", fontSize: 15, fontWeight: 600, color: "var(--accent)", cursor: "pointer", paddingBottom: 4 }}>
+          ‹ חזרה
+        </button>
       </div>
 
-      {/* steps */}
-      {ex.steps && (
-        <div style={{ marginBottom: 24 }}>
-          <h3 style={{ fontSize: 18, marginBottom: 10 }}>מהלך התרגול</h3>
-          <div style={{ display: "grid", gap: 9 }}>
-            {ex.steps.map((s, i) => (
-              <div key={i} style={{ display: "flex", gap: 12, alignItems: "flex-start", fontSize: 16, color: "var(--ink-soft)" }}>
-                <span style={{ flex: "none", width: 26, height: 26, borderRadius: "50%", background: "var(--accent-soft)", color: "var(--accent-ink)", display: "grid", placeItems: "center", fontFamily: "var(--font-head)", fontWeight: 800, fontSize: 14 }}>{i + 1}</span>
-                <span style={{ paddingTop: 2 }}>{s}</span>
+      <div style={{ padding: "0 16px" }}>
+        {/* Task card */}
+        <div style={{ background: "var(--surface)", borderRadius: "var(--r-lg)", padding: "16px 18px", boxShadow: "var(--shadow)", marginBottom: 12 }}>
+          <div style={{ fontSize: 12, fontWeight: 600, color: "var(--muted)", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 6 }}>המשימה</div>
+          <div style={{ fontSize: 15, color: "var(--ink)", lineHeight: 1.6 }}>{ex.intro}</div>
+          {ex.security && (
+            <div style={{ marginTop: 10, padding: "10px 12px", background: "var(--accent-soft)", borderRadius: 10, borderRight: "3px solid var(--accent)" }}>
+              <div style={{ fontSize: 12, color: "var(--accent)", fontWeight: 600 }}>🔒 אבטחת מידע</div>
+              <div style={{ fontSize: 12, color: "var(--accent-ink)", marginTop: 2, lineHeight: 1.5 }}>{ex.security}</div>
+            </div>
+          )}
+        </div>
+
+        {/* Prompt template — dark card */}
+        {ex.prompt && (
+          <div style={{ background: "#1C1C1E", borderRadius: "var(--r-lg)", padding: "16px 18px", boxShadow: "0 4px 16px rgba(0,0,0,0.2)", marginBottom: 12 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
+              <span style={{ fontSize: 12, fontWeight: 600, color: "#636366", textTransform: "uppercase", letterSpacing: "0.05em" }}>הפרומפט</span>
+              <button onClick={() => { navigator.clipboard?.writeText(ex.prompt) }} style={{
+                background: "var(--accent)", borderRadius: 8, padding: "5px 12px",
+                fontSize: 12, fontWeight: 600, color: "white", border: "none", cursor: "pointer" }}>
+                העתק ✓
+              </button>
+            </div>
+            <div style={{ fontSize: 13, color: "#E5E5EA", lineHeight: 1.75, fontFamily: "var(--font-mono)", whiteSpace: "pre-wrap" }}>
+              {ex.prompt}
+            </div>
+          </div>
+        )}
+
+        {/* Open in tool */}
+        {ex.tool && (
+          <div style={{ background: "var(--surface)", borderRadius: "var(--r-lg)", overflow: "hidden", boxShadow: "var(--shadow)", marginBottom: 12 }}>
+            <a href={ex.tool.url} target="_blank" rel="noreferrer" style={{ textDecoration: "none" }}>
+              <div style={{ padding: "13px 16px", display: "flex", alignItems: "center", gap: 12 }}>
+                <div style={{ width: 38, height: 38, background: "linear-gradient(135deg,#0078d4,#005a9e)", borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18, flexShrink: 0 }}>🤖</div>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: 15, fontWeight: 600, color: "var(--ink)" }}>פתח ב-{ex.tool.name}</div>
+                  <div style={{ fontSize: 12, color: "var(--muted)", marginTop: 1 }}>הפרומפט הועתק ומוכן להדבקה</div>
+                </div>
+                <div style={{ color: "var(--muted)", fontSize: 20 }}>›</div>
               </div>
-            ))}
+            </a>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* reflection */}
-      {ex.reflect && (
-        <Card style={{ marginBottom: 22, background: "var(--surface-2)" }}>
-          {ex.reflect.prompt && <div style={{ fontFamily: "var(--font-head)", fontWeight: 700, fontSize: 15.5, color: "var(--accent-ink)", marginBottom: 12 }}>{ex.reflect.prompt}</div>}
-          <div style={{ display: "grid", gap: 12 }}>
-            {ex.reflect.fields.map((f) => (
-              <label key={f.key} style={{ display: "block" }}>
-                <span style={{ display: "block", fontSize: 14.5, fontWeight: 600, color: "var(--ink-soft)", marginBottom: 6 }}>{f.label}</span>
-                <textarea rows={2} value={refl[f.key] || ""} onChange={(e) => setRefl((r) => ({ ...r, [f.key]: e.target.value }))}
-                  style={{ width: "100%", resize: "vertical", padding: "11px 14px", borderRadius: "var(--r-sm)", border: "1.5px solid var(--line)",
-                    fontFamily: "var(--font-body)", fontSize: 15.5, color: "var(--ink)", background: "var(--surface)", outline: "none", lineHeight: 1.6 }}
-                  onFocus={(e) => (e.target.style.borderColor = "var(--accent)")}
-                  onBlur={(e) => (e.target.style.borderColor = "var(--line)")} />
-              </label>
-            ))}
+        {/* Reflection fields */}
+        {ex.reflect?.fields?.map((f) => (
+          <div key={f.key} style={{ marginBottom: 12 }}>
+            <div style={{ fontSize: 13, fontWeight: 600, color: "var(--muted)", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 6 }}>
+              {f.label}
+            </div>
+            <div style={{ background: "var(--surface)", borderRadius: "var(--r-lg)", padding: "14px 16px", boxShadow: "var(--shadow)" }}>
+              <textarea
+                value={refl[f.key] || ""}
+                onChange={(e) => setRefl((r) => ({ ...r, [f.key]: e.target.value }))}
+                placeholder="כתוב כאן את התובנות שלך..."
+                style={{ width: "100%", minHeight: 72, background: "var(--bg)", borderRadius: 10, border: "none",
+                  padding: "10px 12px", fontSize: 14, color: "var(--ink)", fontFamily: "var(--font-body)",
+                  resize: "vertical", outline: "none", lineHeight: 1.5 }}
+              />
+            </div>
           </div>
-        </Card>
-      )}
+        ))}
 
-      <div style={{ display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap" }}>
-        <Button variant="primary" size="lg" icon="check" onClick={() => onComplete(refl)}>עשיתי את התרגול</Button>
-        {alreadyDone && <span style={{ display: "inline-flex", alignItems: "center", gap: 7, color: "var(--success)", fontWeight: 600 }}><Icon name="check" size={18} stroke={3} /> הושלם</span>}
+        {alreadyDone && (
+          <div style={{ textAlign: "center", fontSize: 13, color: "var(--success)", fontWeight: 600, marginBottom: 8 }}>
+            ✓ התרגול הושלם
+          </div>
+        )}
+      </div>
+
+      {/* Sticky CTA */}
+      <div style={{ position: "fixed", bottom: 0, left: 0, right: 0, maxWidth: "var(--maxw)", margin: "0 auto",
+        background: "rgba(242,242,247,0.95)", borderTop: "0.5px solid var(--line-strong)",
+        backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)", padding: "12px 16px 28px" }}>
+        <button onClick={onComplete}
+          disabled={!canSubmit}
+          style={{ width: "100%", background: canSubmit ? "var(--accent)" : "var(--line-strong)",
+            borderRadius: "var(--r-lg)", padding: 16, fontSize: 16, fontWeight: 600,
+            color: "white", border: "none", cursor: canSubmit ? "pointer" : "not-allowed" }}>
+          סיים תרגול ›
+        </button>
       </div>
     </div>
   )
