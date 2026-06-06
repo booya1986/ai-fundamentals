@@ -237,7 +237,16 @@ function App() {
 
   return (
     <>
-      <main style={{ maxWidth: "var(--maxw)", margin: "0 auto", paddingBottom: showTabBar ? 80 : 16 }}>
+      {/* Dot-grid bg + soft red blob — pure CSS, no external deps, SCORM-safe */}
+      <div style={{ position: "fixed", inset: 0, zIndex: 0, pointerEvents: "none", overflow: "hidden" }}>
+        <div style={{
+          position: "absolute", width: 560, height: 560, borderRadius: "50%",
+          background: "radial-gradient(circle, rgba(255,59,48,0.16) 0%, transparent 65%)",
+          filter: "blur(50px)", top: -140, right: -140,
+          animation: "blob-float 14s ease-in-out infinite alternate",
+        }} />
+      </div>
+      <main style={{ position: "relative", zIndex: 1, maxWidth: "var(--maxw)", margin: "0 auto", paddingBottom: showTabBar ? 80 : 16 }}>
         {screen === "map" && (
           <CourseMap modules={MODULES} progress={progress} onOpenLesson={openLesson} />
         )}

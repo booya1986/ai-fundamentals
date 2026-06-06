@@ -61,7 +61,9 @@
 * { box-sizing: border-box; }
 html, body { margin: 0; padding: 0; }
 body {
-  background: var(--bg);
+  background-color: var(--bg);
+  background-image: radial-gradient(circle, rgba(60,60,67,0.11) 1px, transparent 1px);
+  background-size: 24px 24px;
   color: var(--ink);
   font-family: var(--font-body);
   font-size: 15px;
@@ -96,6 +98,7 @@ button { font-family: inherit; cursor: pointer; }
 @keyframes unlock-pop { 0% { transform: scale(0.6); opacity: 0; } 55% { transform: scale(1.08); opacity: 1; } 100% { transform: scale(1); opacity: 1; } }
 @keyframes lock-burst { 0% { transform: scale(1) rotate(0); } 30% { transform: scale(1.25) rotate(-8deg); } 100% { transform: scale(0) rotate(28deg); opacity: 0; } }
 @keyframes ring-ping { 0% { transform: scale(0.7); opacity: 0.55; } 100% { transform: scale(2.2); opacity: 0; } }
+@keyframes blob-float { from { transform: translate(0, 0) scale(1); } to { transform: translate(-40px, 50px) scale(1.15); } }
 
 .stripe-ph {
   background: #1C1C1E;
