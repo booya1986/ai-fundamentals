@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>בוחרים ויוצרים — קונספטים לבחירה</title>
+<style>
+  :root{
+    --accent:#FF3B30; --accent-deep:#D70015; --accent-soft:#FFF5F5; --accent-ink:#C0392B;
+    --warning:#FF9500; --warning-soft:#FFF4E5; --success:#34C759; --success-soft:#E8F8ED;
+    --ink:#1C1C1E; --ink-soft:#48484A; --muted:#8E8E93; --line:#E5E5EA; --line-soft:#F2F2F7;
+    --surface:#fff; --bg:#F2F2F7; --r:14px; --r-lg:16px; --r-xl:20px;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans Hebrew",sans-serif;line-height:1.6;}
+  .wrap{max-width:1100px;margin:0 auto;padding:28px 20px 60px;}
+  header.top{text-align:center;margin-bottom:8px;}
+  .kicker{display:inline-block;font-size:13px;font-weight:700;color:var(--accent);letter-spacing:.05em;text-transform:uppercase;background:var(--accent-soft);border:1px solid #ffd9d6;border-radius:999px;padding:4px 12px;margin-bottom:12px;}
+  h1{font-size:30px;font-weight:800;letter-spacing:-.4px;margin:0 0 6px;}
+  .sub{color:var(--ink-soft);font-size:17px;max-width:760px;margin:0 auto;}
+  .note{background:var(--warning-soft);border:1px solid #ffe0b3;border-radius:var(--r-lg);padding:14px 18px;margin:22px 0 30px;font-size:15px;color:var(--ink-soft);}
+  .note b{color:var(--ink);}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:20px;}
+  .card{background:var(--surface);border-radius:var(--r-xl);box-shadow:0 6px 24px rgba(0,0,0,.07);overflow:hidden;display:flex;flex-direction:column;border:1px solid #eee;}
+  .card .hd{padding:18px 20px 10px;}
+  .badge{display:inline-block;font-size:12px;font-weight:800;color:#fff;border-radius:999px;padding:3px 11px;margin-bottom:10px;}
+  .b1{background:linear-gradient(135deg,#FF3B30,#FF6B6B);}
+  .b2{background:linear-gradient(135deg,#0A84FF,#32ADE6);}
+  .b3{background:linear-gradient(135deg,#AF52DE,#BF5AF2);}
+  .card h2{font-size:21px;font-weight:800;margin:0 0 4px;}
+  .card .idea{font-size:15px;color:var(--ink-soft);padding:0 20px 6px;}
+  .who{font-size:13.5px;color:var(--muted);padding:0 20px 12px;}
+  .who b{color:var(--accent-ink);}
+  /* phone mock */
+  .mock{margin:6px 16px 18px;background:var(--bg);border-radius:var(--r-lg);padding:14px;border:1px solid var(--line);}
+  .mhead{font-size:12px;color:var(--muted);margin-bottom:4px;}
+  .mtitle{font-size:16px;font-weight:800;margin-bottom:10px;}
+  .opt{display:flex;align-items:center;gap:10px;background:#fff;border:1.5px solid var(--line);border-radius:12px;padding:10px 12px;margin-bottom:8px;font-size:14px;font-weight:600;}
+  .opt .ic{width:30px;height:30px;border-radius:8px;display:grid;place-items:center;flex-shrink:0;color:#fff;font-size:15px;}
+  .opt small{display:block;font-weight:400;color:var(--muted);font-size:12px;}
+  .opt.sel{border-color:var(--warning);background:var(--warning-soft);}
+  .tool{display:inline-flex;align-items:center;gap:6px;background:#fff;border:1.5px solid var(--line);border-radius:999px;padding:5px 11px;font-size:12.5px;font-weight:700;margin:2px;}
+  .tool .dot{width:18px;height:18px;border-radius:50%;display:grid;place-items:center;color:#fff;font-size:11px;}
+  .promptbox{background:#1C1C1E;color:#E5E5EA;border-radius:12px;padding:11px 13px;font-size:12.5px;line-height:1.6;margin-top:8px;font-family:ui-monospace,monospace;}
+  .pros{padding:0 20px 18px;margin-top:auto;}
+  .pros .ttl{font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin:6px 0 6px;}
+  .pros ul{margin:0;padding-inline-start:18px;font-size:14px;color:var(--ink-soft);}
+  .pros li{margin-bottom:4px;}
+  .tag{display:inline-block;font-size:11.5px;font-weight:700;border-radius:999px;padding:2px 9px;margin-inline-start:6px;}
+  .tag.go{background:var(--success-soft);color:#1d8a3e;}
+  .tag.mid{background:var(--warning-soft);color:#9a6300;}
+  footer{margin-top:34px;text-align:center;color:var(--muted);font-size:13px;}
+  .legend{font-size:13px;color:var(--ink-soft);background:#fff;border:1px solid var(--line);border-radius:var(--r-lg);padding:12px 16px;margin:0 0 26px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <span class="kicker">מוקאפ לבחירה · לא מיושם באפליקציה</span>
+    <h1>"בוחרים ויוצרים" — 3 קונספטים</h1>
+    <p class="sub">בתוצר המקורי (10659) הלומד התנסה ביצירת <b>טקסט, תמונה ומוזיקה</b> (ברכת יום-הולדת לעמית, תמונת כרטיס ברכה, ושיר ב-Suno). הרעיון יפה — אבל פחות קשור לעבודה היומיומית בבנק. כאן שלוש דרכים לשמר את חוויית ה"בחירה" שבשם, אבל עם משימות עבודה אמיתיות.</p>
+  </header>
+
+  <div class="note">
+    🔒 <b>עיקרון מנחה בכל הקונספטים:</b> הבחירה נשארת, היצירתיות נשארת — אבל המשימות עבודתיות, והכלים שמוצעים הם הארגוניים (Copilot / JARVIS) או חיצוניים דרך Citrix למידע כללי בלבד, בכפוף לאבטחת המידע. בלי פרטי לקוחות.
+  </div>
+
+  <div class="legend">
+    <b>איך לבחור?</b> כל קונספט מציג מה הלומד <u>בוחר</u>, תצוגה מוקטנת של המסך, ומתי הוא מתאים. אפשר גם לשלב (למשל קונספט A כברירת מחדל + הרחבה של B).
+  </div>
+
+  <div class="grid">
+
+    <!-- Concept A -->
+    <div class="card">
+      <div class="hd">
+        <span class="badge b1">קונספט A</span>
+        <h2>בוחרים משימה</h2>
+      </div>
+      <div class="idea">הלומד בוחר <b>איזו משימת עבודה</b> לבצע עם AI — מתוך 3 משימות אמיתיות. לכל בחירה נפתח הפרומפט והכלי המתאים. שומר על תחושת ה"בחירה והיצירה", אבל כל מסלול הוא תוצר עבודתי.</div>
+      <div class="who">מתאים כש: <b>רוצים מגוון</b> ושכל לומד יתחבר למשימה הקרובה לתפקידו.</div>
+      <div class="mock">
+        <div class="mhead">תרגול · בחרו מסלול</div>
+        <div class="mtitle">מה תרצו ליצור עכשיו?</div>
+        <div class="opt sel"><span class="ic" style="background:#0A84FF">✉</span><span>ניסוח מייל מקצועי ללקוח<small>טיוטה ברורה ומנומסת — ב-Copilot</small></span></div>
+        <div class="opt"><span class="ic" style="background:#34C759">📋</span><span>סיכום ישיבה לנקודות פעולה<small>מהקלטה/תמלול לסיכום ממוקד</small></span></div>
+        <div class="opt"><span class="ic" style="background:#AF52DE">📊</span><span>הפיכת נתונים לתרשים<small>טקסט → דיאגרמה להצגה</small></span></div>
+        <div class="promptbox">נבחר "ניסוח מייל": "נסח/י מייל מקצועי ומנומס ללקוח שמבקש לדחות פגישה לשבוע הבא, בטון חם ותמציתי, עד 4 שורות."</div>
+      </div>
+      <div class="pros">
+        <div class="ttl">יתרונות / שיקולים</div>
+        <ul>
+          <li>מגוון רחב — כל אחד מתחבר למשהו<span class="tag go">+</span></li>
+          <li>כל מסלול = תוצר עבודה אמיתי<span class="tag go">+</span></li>
+          <li>דורש לתחזק 3 פרומפטים<span class="tag mid">~</span></li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Concept B -->
+    <div class="card">
+      <div class="hd">
+        <span class="badge b2">קונספט B</span>
+        <h2>אותה משימה, כלים שונים</h2>
+      </div>
+      <div class="idea">משימה אחת (למשל ניסוח מייל), והלומד <b>בוחר באיזה כלי</b> לבצע אותה — Copilot, JARVIS או כלי חיצוני — ומשווה. הבחירה מלמדת <b>התאמת כלי למשימה</b> ואבטחת מידע, ישירות מחוברת למודול.</div>
+      <div class="who">מתאים כש: <b>רוצים לחזק את לב המודול</b> — מתי כל כלי, ולמה.</div>
+      <div class="mock">
+        <div class="mhead">תרגול · אותה מטרה, איזה כלי?</div>
+        <div class="mtitle">"סכמו את הנוהל הפנימי הזה" — במה תבחרו?</div>
+        <span class="tool"><span class="dot" style="background:#0078d4">✦</span>Copilot</span>
+        <span class="tool"><span class="dot" style="background:#FF3B30">◆</span>JARVIS</span>
+        <span class="tool"><span class="dot" style="background:#10a37f">✷</span>ChatGPT (Citrix)</span>
+        <div class="promptbox">בחירה ב-JARVIS → "מצוין! נוהל פנימי = מידע ארגוני, ולכן הכלי הנכון הוא JARVIS שנשאר בתוך הבנק. נסו את הפרומפט…"</div>
+      </div>
+      <div class="pros">
+        <div class="ttl">יתרונות / שיקולים</div>
+        <ul>
+          <li>מחבר ישירות לנושא המודול<span class="tag go">+</span></li>
+          <li>מלמד אבטחת מידע דרך התנסות<span class="tag go">+</span></li>
+          <li>פחות "יצירה", יותר "בחירה נכונה"<span class="tag mid">~</span></li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Concept C -->
+    <div class="card">
+      <div class="hd">
+        <span class="badge b3">קונספט C</span>
+        <h2>מסלול לפי התפקיד</h2>
+      </div>
+      <div class="idea">הלומד בוחר את <b>התחום/התפקיד שלו</b> (שירות, אשראי, back-office…), ומקבל משימה ופרומפט <b>מותאמים אישית</b> לעולם התוכן שלו. הבחירה = הזהות המקצועית, וההתנסות הכי רלוונטית שאפשר.</div>
+      <div class="who">מתאים כש: <b>רוצים מקסימום רלוונטיות</b> ותחושת התאמה אישית.</div>
+      <div class="mock">
+        <div class="mhead">תרגול · בחרו את עולם התוכן שלכם</div>
+        <div class="mtitle">מה הכי קרוב לתפקיד שלכם?</div>
+        <div class="opt"><span class="ic" style="background:#FF9500">🤝</span><span>שירות לקוחות<small>תשובה אמפתית לפנייה</small></span></div>
+        <div class="opt sel"><span class="ic" style="background:#0A84FF">💳</span><span>אשראי ויעוץ<small>הסבר מושג פיננסי בשפה פשוטה</small></span></div>
+        <div class="opt"><span class="ic" style="background:#34C759">🗂️</span><span>Back-office / תפעול<small>נוהל לצ'ק-ליסט מסודר</small></span></div>
+        <div class="promptbox">נבחר "אשראי": "הסבר/י ללקוח במשפט אחד ופשוט מהי ריבית פריים, בלי ז'רגון, בטון ידידותי."</div>
+      </div>
+      <div class="pros">
+        <div class="ttl">יתרונות / שיקולים</div>
+        <ul>
+          <li>הכי רלוונטי אישית<span class="tag go">+</span></li>
+          <li>תחושת "מותאם בשבילי"<span class="tag go">+</span></li>
+          <li>דורש הגדרת תפקידים ופרומפט לכל אחד<span class="tag mid">~</span></li>
+        </ul>
+      </div>
+    </div>
+
+  </div>
+
+  <footer>
+    הקיים באפליקציה ("נסה בעצמך") נשאר ללא שינוי עד שתבחרי כיוון. אחרי שתבחרי קונספט (או שילוב) — אטמיע אותו במקום/לצד הקיים.
+  </footer>
+</div>
+</body>
+</html>
