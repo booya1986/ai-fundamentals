@@ -23,7 +23,7 @@ FONT_SANS = "Arial"
 FONT_BODY = "Arial"
 
 OUT_PATH = (
-    "/Users/avilevi/Documents/projects/AI Fundumentals"
+    "/Users/avilevi/Documents/projects/poalim projects/AI Fundumentals"
     "/ai-fundamentals/docs/course-improvement-report-he.docx"
 )
 
